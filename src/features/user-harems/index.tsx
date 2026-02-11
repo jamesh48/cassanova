@@ -12,9 +12,14 @@ import UserHarem from './user-harem'
 interface UserHaremsProps {
   userHarems?: Harem[]
   setCurrentUserHarem: React.Dispatch<React.SetStateAction<Harem | undefined>>
+  editHaremsMode: boolean
 }
 
-const UserHarems = ({ userHarems, setCurrentUserHarem }: UserHaremsProps) => {
+const UserHarems = ({
+  userHarems,
+  setCurrentUserHarem,
+  editHaremsMode,
+}: UserHaremsProps) => {
   const [triggerReorderHarems] = useReorderHaremsMutation()
 
   const [draggedHaremIndex, setDraggedHaremIndex] = useState<number | null>(
@@ -187,6 +192,7 @@ const UserHarems = ({ userHarems, setCurrentUserHarem }: UserHaremsProps) => {
           onProspectReorder={handleProspectReorder}
           onProspectDragEnd={handleProspectDragEnd}
           onOpenProspect={handleOpenAddProspectDialog}
+          editHaremsMode={editHaremsMode}
         />
       ))}
     </Box>

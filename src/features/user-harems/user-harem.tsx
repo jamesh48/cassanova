@@ -39,6 +39,7 @@ interface UserHaremProps {
   onProspectReorder: (haremId: number, reorderedProspects: Prospect[]) => void
   onProspectDragEnd: () => void
   onOpenProspect: (harem: Harem) => void
+  editHaremsMode: boolean
 }
 
 const UserHarem = ({
@@ -56,6 +57,7 @@ const UserHarem = ({
   onProspectReorder,
   onProspectDragEnd,
   onOpenProspect,
+  editHaremsMode,
 }: UserHaremProps) => {
   const [triggerDeleteHarem] = useDeleteUserHaremMutation()
   const [triggerUpdateHarem] = useUpdateHaremMutation()
@@ -259,44 +261,46 @@ const UserHarem = ({
           </Typography>
         )}
 
-        <Box display='flex' justifyContent='space-between'>
-          {editHaremMode ? (
-            <IconButton
-              color='success'
-              onClick={() => handleSaveHaremEdits(userHarem)}
-            >
-              <Check />
-            </IconButton>
-          ) : (
-            <IconButton color='info' onClick={() => setEditHaremMode(true)}>
-              <EditOutlined />
-            </IconButton>
-          )}
+        {editHaremsMode ? (
+          <Box display='flex' justifyContent='space-between'>
+            {editHaremMode ? (
+              <IconButton
+                color='success'
+                onClick={() => handleSaveHaremEdits(userHarem)}
+              >
+                <Check />
+              </IconButton>
+            ) : (
+              <IconButton color='info' onClick={() => setEditHaremMode(true)}>
+                <EditOutlined />
+              </IconButton>
+            )}
 
-          <Box
-            onMouseDown={(e) => {
-              e.stopPropagation()
-              setIsHaremDraggable(true)
-            }}
-            onMouseUp={(e) => {
-              e.stopPropagation()
-              setIsHaremDraggable(false)
-            }}
-            sx={{
-              cursor: isDraggingHarem ? 'grabbing' : 'grab',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '8px',
-              borderRadius: '4px',
-              '&:hover': {
-                backgroundColor: 'action.hover',
-              },
-            }}
-          >
-            <DragIndicator />
+            <Box
+              onMouseDown={(e) => {
+                e.stopPropagation()
+                setIsHaremDraggable(true)
+              }}
+              onMouseUp={(e) => {
+                e.stopPropagation()
+                setIsHaremDraggable(false)
+              }}
+              sx={{
+                cursor: isDraggingHarem ? 'grabbing' : 'grab',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '8px',
+                borderRadius: '4px',
+                '&:hover': {
+                  backgroundColor: 'action.hover',
+                },
+              }}
+            >
+              <DragIndicator />
+            </Box>
           </Box>
-        </Box>
+        ) : null}
       </Box>
 
       {/* Scrollable Prospects List */}

@@ -1,9 +1,9 @@
 'use client'
 
-import { Add } from '@mui/icons-material'
 import { AppBar, Box, Button, Dialog, Toolbar, Typography } from '@mui/material'
 import { SnackbarProvider } from 'notistack'
 import { useState } from 'react'
+import HaremActionsDropdown from '@/components/harem-actions-dropdown'
 import ProtectedRoute from '@/components/protected-route'
 import { useAuth } from '@/contexts/auth-context'
 import NewHarem from '@/features/new-harem'
@@ -16,11 +16,16 @@ export default function Dashboard() {
   const { logout } = useAuth()
   const [currentUserHarem, setCurrentUserHarem] = useState<Harem>()
   const [openHaremDialog, setOpenHaremDialog] = useState(false)
+  const [editHaremsMode, setEditHaremsMode] = useState(false)
 
   const { data: userHarems } = useGetAllHaremsQuery()
 
   const handleOpenAddHaremDialog = () => {
     setOpenHaremDialog(true)
+  }
+
+  const handleEditHarems = () => {
+    setEditHaremsMode((prev) => !prev)
   }
 
   return (
@@ -54,32 +59,28 @@ export default function Dashboard() {
               fontWeight={600}
               color='text.primary'
             >
-              Your Harems
+              {editHaremsMode ? 'Edit Your Harems' : 'Your Harems'}
             </Typography>
 
-            <Box display='flex' gap={1.5}>
-              <Button
-                variant='contained'
-                onClick={handleOpenAddHaremDialog}
-                startIcon={<Add />}
-                sx={{
-                  textTransform: 'none',
-                  fontWeight: 500,
-                }}
-              >
-                New Harem
-              </Button>
-              <Button
-                color='error'
-                variant='outlined'
-                onClick={logout}
-                sx={{
-                  textTransform: 'none',
-                  fontWeight: 500,
-                }}
-              >
-                Logout
-              </Button>
+            <Box display='flex' gap={1.5} alignItems='center'>
+              {editHaremsMode && (
+                <Button
+                  variant='outlined'
+                  onClick={() => setEditHaremsMode(false)}
+                  sx={{
+                    textTransform: 'none',
+                    fontWeight: 500,
+                  }}
+                >
+                  Done Editing
+                </Button>
+              )}
+              <HaremActionsDropdown
+                onNewHarem={handleOpenAddHaremDialog}
+                onEditHarems={handleEditHarems}
+                onLogout={logout}
+                editHaremsMode={editHaremsMode}
+              />
             </Box>
           </Toolbar>
         </AppBar>
@@ -96,6 +97,7 @@ export default function Dashboard() {
           <UserHarems
             userHarems={userHarems}
             setCurrentUserHarem={setCurrentUserHarem}
+            editHaremsMode={editHaremsMode}
           />
         </Box>
 
