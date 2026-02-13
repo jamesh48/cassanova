@@ -14,7 +14,7 @@ import { useMobileBrowserCheck } from '@/hooks'
 import { useGetAllHaremsQuery } from '@/redux/services'
 import type { Harem } from '@/types'
 
-export default function Dashboard() {
+const Dashboard = () => {
   const { logout } = useAuth()
   const [currentUserHarem, setCurrentUserHarem] = useState<Harem>()
   const [openHaremDialog, setOpenHaremDialog] = useState(false)
@@ -99,7 +99,9 @@ export default function Dashboard() {
           sx={{
             flex: 1,
             overflow: 'hidden',
-            p: 2,
+            position: 'relative',
+            // Remove padding on mobile
+            p: isMobile ? 0 : 2,
           }}
         >
           {isMobile ? (
@@ -136,3 +138,5 @@ export default function Dashboard() {
     </ProtectedRoute>
   )
 }
+
+export default Dashboard

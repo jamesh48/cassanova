@@ -67,12 +67,9 @@ const MobileUserHarems = ({
       display='flex'
       flexDirection='column'
       width='100%'
+      height='100%' // Changed from absolute positioning
       sx={{
-        position: 'absolute',
-        top: '4rem',
-        bottom: 0,
-        left: 0,
-        right: 0,
+        overflow: 'hidden', // Prevent any scrolling at this level
       }}
     >
       {/* Scrollable content area */}
@@ -81,7 +78,6 @@ const MobileUserHarems = ({
           flex: 1,
           overflow: 'auto',
           p: 1,
-          // Prevent scroll bounce on iOS
           WebkitOverflowScrolling: 'touch',
         }}
       >
@@ -97,7 +93,6 @@ const MobileUserHarems = ({
       <Box
         sx={{
           flexShrink: 0,
-          // Add safe area padding for iPhone home indicator
           pb: 'max(8px, env(safe-area-inset-bottom))',
         }}
       >
