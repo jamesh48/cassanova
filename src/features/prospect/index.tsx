@@ -17,7 +17,8 @@ const NewProspect = ({
   handleCloseProspectDialog,
   currentUserHarem,
 }: NewProspectProps) => {
-  const [triggerCreateProspect] = useCreateProspectMutation()
+  const [triggerCreateProspect, { isLoading: isLoadingCreateProspect }] =
+    useCreateProspectMutation()
 
   const handleCreateProspect: SubmitHandler<NewProspectFormValues> = async (
     values,
@@ -37,7 +38,7 @@ const NewProspect = ({
       onSubmit={handleCreateProspect}
       defaultValues={{ name: '' }}
       title='New Prospect'
-      subtitle={`Add a new prospect to ${currentUserHarem?.name || 'this harem'}`}
+      subtitle={`Add a new prospect to ${currentUserHarem?.name || 'this Harem'}`}
       inputs={[
         {
           name: 'name',
@@ -57,7 +58,10 @@ const NewProspect = ({
         children: 'Cancel',
         onClick: handleCloseProspectDialog,
       }}
-      actionButtonProps={{ children: 'Create' }}
+      actionButtonProps={{
+        children: 'Create',
+        loading: isLoadingCreateProspect,
+      }}
       showSnackbar
       snackbarProps={{
         successMessage: 'Successfully Created Prospect!',
