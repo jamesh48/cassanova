@@ -1,31 +1,50 @@
 import {
   Check,
   DeleteForeverOutlined,
-  DragIndicator,
   EditOutlined,
+  MoveDown,
   Whatshot,
   WhatshotOutlined,
 } from '@mui/icons-material'
-import { Box, Divider, IconButton, TextField, Typography } from '@mui/material'
+import {
+  Box,
+  Dialog,
+  Divider,
+  IconButton,
+  TextField,
+  Typography,
+} from '@mui/material'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { useMemo, useState } from 'react'
+import MobileMoveProspectDialogContents from '@/features/mobile-user-harems/MobileMoveProspectDialogContents'
 import { useSnackbar } from '@/hooks'
 import {
   useDeleteProspectMutation,
   useUpdateProspectMutation,
 } from '@/redux/services'
-import type { Prospect } from '@/types'
+import type { Harem, Prospect } from '@/types'
 
 dayjs.extend(utc)
 
 interface ListedProspectProps {
   userHaremProspect: Prospect
-  prospectIndex: number
+  handleMoveProspect: (
+    targetHaremId: number,
+    prospectId: number,
+  ) => Promise<void>
+  userHarems: Harem[]
+  currentHaremId: number
 }
 
-const MobileListedProspect = ({ userHaremProspect }: ListedProspectProps) => {
+const MobileListedProspect = ({
+  userHaremProspect,
+  handleMoveProspect,
+  userHarems,
+  currentHaremId,
+}: ListedProspectProps) => {
   const showSnackbar = useSnackbar()
+  const [moveMobileProspectMode, setMoveMobileProspectMode] = useState(false)
   const [editListedProspectMode, setEditListedProspectMode] = useState(false)
   const [editListedProspectValue, setEditListedProspectValue] = useState(
     userHaremProspect.name,
@@ -202,7 +221,9 @@ const MobileListedProspect = ({ userHaremProspect }: ListedProspectProps) => {
               },
             }}
           >
-            <DragIndicator fontSize='small' />
+            <IconButton onClick={() => setMoveMobileProspectMode(true)}>
+              <MoveDown fontSize='small' />
+            </IconButton>
           </Box>
         </Box>
       </Box>
@@ -223,6 +244,15 @@ const MobileListedProspect = ({ userHaremProspect }: ListedProspectProps) => {
           Days on Dashboard: {daysOnDashboard}
         </Typography>
       </Box>
+      <Dialog open={moveMobileProspectMode}>
+        <MobileMoveProspectDialogContents
+          currentHaremId={currentHaremId}
+          userHarems={userHarems}
+          prospect={userHaremProspect}
+          setMoveMobileProspectMode={setMoveMobileProspectMode}
+          handleMoveProspect={handleMoveProspect}
+        />
+      </Dialog>
     </Box>
   )
 }

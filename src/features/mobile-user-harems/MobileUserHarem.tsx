@@ -19,12 +19,17 @@ interface MobileUserHaremProps {
     React.SetStateAction<Harem | undefined>
   >
   onOpenProspect: (selectedHarem: Harem) => void
+  handleMoveProspect: (
+    targetHaremId: number,
+    prospectId: number,
+  ) => Promise<void>
 }
 const MobileUserHarem = ({
   userHarem,
   userHarems,
   setCurrentMobileUserHarem,
   onOpenProspect,
+  handleMoveProspect,
 }: MobileUserHaremProps) => {
   return (
     <Paper
@@ -89,11 +94,13 @@ const MobileUserHarem = ({
           }}
         >
           {userHarem?.prospects.length ? (
-            userHarem.prospects.map((userHaremProspect, prospectIndex) => (
+            userHarem.prospects.map((userHaremProspect) => (
               <Box key={userHaremProspect.id}>
                 <MobileListedProspect
                   userHaremProspect={userHaremProspect}
-                  prospectIndex={prospectIndex}
+                  handleMoveProspect={handleMoveProspect}
+                  userHarems={userHarems || []}
+                  currentHaremId={userHarem.id}
                 />
               </Box>
             ))
