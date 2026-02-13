@@ -1,5 +1,5 @@
 import { Box, Divider } from '@mui/material'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import MobileUserHarem from '@/features/mobile-user-harems/MobileUserHarem'
 import SelectMobileHaremFooter from '@/features/user-harems/mobile/SelectMobileHaremFooter'
 import { useSnackbar } from '@/hooks'
@@ -7,10 +7,6 @@ import { useMoveProspectMutation } from '@/redux/services'
 import type { Harem } from '@/types'
 
 interface MobileUserHaremProps {
-  activeMobileUserHaremId?: number
-  setActiveMobileUserHaremId: React.Dispatch<
-    React.SetStateAction<number | undefined>
-  >
   setCurrentUserHaremForProspect: React.Dispatch<
     React.SetStateAction<Harem | undefined>
   >
@@ -19,14 +15,16 @@ interface MobileUserHaremProps {
 }
 
 const MobileUserHarems = ({
-  activeMobileUserHaremId,
   userHarems,
-  setActiveMobileUserHaremId,
   editHaremsMode,
   setCurrentUserHaremForProspect,
 }: MobileUserHaremProps) => {
   const showSnackbar = useSnackbar()
   const [triggerMoveProspect] = useMoveProspectMutation()
+
+  const [activeMobileUserHaremId, setActiveMobileUserHaremId] = useState<
+    number | undefined
+  >()
 
   const activeMobileUserHarem = useMemo(() => {
     if (!activeMobileUserHaremId || !userHarems) return userHarems?.[0]

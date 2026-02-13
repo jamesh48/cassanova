@@ -20,9 +20,6 @@ const Dashboard = () => {
     useState<Harem>()
   const [openHaremDialog, setOpenHaremDialog] = useState(false)
   const [editHaremsMode, setEditHaremsMode] = useState(false)
-  const [activeMobileUserHaremId, setActiveMobileUserHaremId] = useState<
-    number | undefined
-  >()
 
   const { data: userHarems } = useGetAllHaremsQuery()
 
@@ -109,8 +106,6 @@ const Dashboard = () => {
         >
           {isMobile ? (
             <MobileUserHarems
-              activeMobileUserHaremId={activeMobileUserHaremId}
-              setActiveMobileUserHaremId={setActiveMobileUserHaremId}
               userHarems={userHarems}
               editHaremsMode={editHaremsMode}
               setCurrentUserHaremForProspect={setCurrentUserHaremForProspect}
