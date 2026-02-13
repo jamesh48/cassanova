@@ -1,17 +1,8 @@
-import {
-  Check,
-  DeleteForeverOutlined,
-  EditOutlined,
-  // MoveDown,
-  PersonAdd,
-} from '@mui/icons-material'
+import { Check, DeleteForeverOutlined, EditOutlined } from '@mui/icons-material'
 import {
   Box,
-  Divider,
   IconButton,
-  MenuItem,
   Paper,
-  Select,
   Stack,
   TextField,
   Typography,
@@ -28,10 +19,6 @@ import type { Harem } from '@/types'
 interface MobileUserHaremProps {
   userHarem: Harem
   userHarems?: Harem[]
-  setCurrentMobileUserHaremId: React.Dispatch<
-    React.SetStateAction<number | undefined>
-  >
-  onOpenProspect: (selectedHarem: Harem) => void
   handleMoveProspect: (
     targetHaremId: number,
     prospectId: number,
@@ -42,8 +29,6 @@ interface MobileUserHaremProps {
 const MobileUserHarem = ({
   userHarem,
   userHarems,
-  setCurrentMobileUserHaremId,
-  onOpenProspect,
   handleMoveProspect,
   editHaremsMode,
 }: MobileUserHaremProps) => {
@@ -225,38 +210,6 @@ const MobileUserHarem = ({
             </Typography>
           )}
         </Stack>
-      </Box>
-
-      {/* Footer - Fixed at bottom */}
-      <Box sx={{ mt: 1, pt: 1 }}>
-        <Divider sx={{ width: '100%', mb: 1 }} />
-        <Box width='100%' display='flex' justifyContent='space-between'>
-          <Select
-            fullWidth
-            onChange={(evt) => {
-              const value = evt.target.value as number
-              setCurrentMobileUserHaremId(value)
-            }}
-            value={userHarem?.id ?? ''}
-            displayEmpty
-          >
-            {userHarems?.map((eligibleHarem) => (
-              <MenuItem key={eligibleHarem.id} value={eligibleHarem.id}>
-                {eligibleHarem.name || 'Unnamed'}
-              </MenuItem>
-            ))}
-          </Select>
-          <IconButton
-            color='success'
-            onClick={() => {
-              if (userHarem) {
-                onOpenProspect(userHarem)
-              }
-            }}
-          >
-            <PersonAdd />
-          </IconButton>
-        </Box>
       </Box>
     </Paper>
   )
