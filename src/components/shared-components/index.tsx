@@ -6,7 +6,7 @@ import {
   Typography,
 } from '@mui/material'
 import Link, { type LinkProps } from 'next/link'
-import { enqueueSnackbar } from 'notistack'
+
 import type { ReactNode } from 'react'
 import {
   Controller,
@@ -17,7 +17,7 @@ import {
   type SubmitHandler,
   useForm,
 } from 'react-hook-form'
-import { useFocusableInput } from '@/hooks'
+import { useFocusableInput, useSnackbar } from '@/hooks'
 
 type SimpleFormPropsBase<T extends FieldValues> = {
   onSubmit: SubmitHandler<T>
@@ -60,6 +60,7 @@ const SimpleForm = <T extends FieldValues>({
   },
   fullWidth = false,
 }: SimpleFormProps<T>) => {
+  const revealSnackbar = useSnackbar()
   const { handleSubmit, control, reset } = useForm<T>({ defaultValues })
   const { setInputRef } = useFocusableInput(true)
 
@@ -67,12 +68,12 @@ const SimpleForm = <T extends FieldValues>({
     try {
       await onSubmit(values)
       if (showSnackbar && snackbarProps) {
-        enqueueSnackbar(snackbarProps.successMessage, { variant: 'success' })
+        revealSnackbar(snackbarProps.successMessage, { variant: 'success' })
       }
       reset()
     } catch (_err) {
       if (showSnackbar && snackbarProps) {
-        enqueueSnackbar(snackbarProps.failureMessage, { variant: 'error' })
+        revealSnackbar(snackbarProps.failureMessage, { variant: 'error' })
       }
     }
   }

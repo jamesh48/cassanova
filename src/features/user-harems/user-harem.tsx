@@ -14,10 +14,9 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import { enqueueSnackbar } from 'notistack'
 import { useEffect, useMemo, useState } from 'react'
 import ListedProspect from '@/features/user-harems/listed-prospect'
-import { useFocusableInput } from '@/hooks'
+import { useFocusableInput, useSnackbar } from '@/hooks'
 import {
   useDeleteUserHaremMutation,
   useUpdateHaremMutation,
@@ -61,7 +60,7 @@ const UserHarem = ({
 }: UserHaremProps) => {
   const [triggerDeleteHarem] = useDeleteUserHaremMutation()
   const [triggerUpdateHarem] = useUpdateHaremMutation()
-
+  const showSnackbar = useSnackbar()
   const [editHaremName, setEditHaremName] = useState(userHarem.name)
   const [editHaremMode, setEditHaremMode] = useState(false)
 
@@ -99,12 +98,12 @@ const UserHarem = ({
         name: editHaremName,
       }).unwrap()
       setEditHaremMode(false)
-      enqueueSnackbar<'success'>('Renamed Harem Successfully', {
+      showSnackbar('Renamed Harem Successfully', {
         variant: 'success',
         preventDuplicate: true,
       })
     } catch (_err) {
-      enqueueSnackbar('Failed to Rename Harem', {
+      showSnackbar('Failed to Rename Harem', {
         variant: 'error',
         preventDuplicate: true,
       })
@@ -179,15 +178,15 @@ const UserHarem = ({
   const handleDeleteHarem = async () => {
     try {
       if (userHarem.prospects.length) {
-        enqueueSnackbar('Harem must be empty before deletion', {
+        showSnackbar('Harem must be empty before deletion', {
           variant: 'error',
         })
         return
       }
       await triggerDeleteHarem({ id: userHarem.id }).unwrap()
-      enqueueSnackbar('Successfully deleted Harem!', { variant: 'success' })
+      showSnackbar('Successfully deleted Harem!', { variant: 'success' })
     } catch (_err) {
-      enqueueSnackbar('Failed to Delete Harem', { variant: 'error' })
+      showSnackbar('Failed to Delete Harem', { variant: 'error' })
     }
   }
 

@@ -1,6 +1,6 @@
 import { Box } from '@mui/material'
-import { enqueueSnackbar } from 'notistack'
 import { useState } from 'react'
+import { useSnackbar } from '@/hooks'
 import {
   useMoveProspectMutation,
   useReorderHaremsMutation,
@@ -20,6 +20,7 @@ const UserHarems = ({
   setCurrentUserHarem,
   editHaremsMode,
 }: UserHaremsProps) => {
+  const showSnackbar = useSnackbar()
   const [triggerReorderHarems] = useReorderHaremsMutation()
 
   const [draggedHaremIndex, setDraggedHaremIndex] = useState<number | null>(
@@ -73,9 +74,9 @@ const UserHarems = ({
 
     try {
       await triggerReorderHarems(harems).unwrap()
-      enqueueSnackbar('Successfully Reordered Harems!', { variant: 'success' })
+      showSnackbar('Successfully Reordered Harems!', { variant: 'success' })
     } catch (_err) {
-      enqueueSnackbar('Failed to Reorder Harems', { variant: 'error' })
+      showSnackbar('Failed to Reorder Harems', { variant: 'error' })
     }
   }
 
@@ -95,14 +96,12 @@ const UserHarems = ({
         newHaremId: targetHaremId,
       }).unwrap()
 
-      enqueueSnackbar<'success'>('Moved Prospect Successfully', {
+      showSnackbar('Moved Prospect Successfully', {
         variant: 'success',
-        preventDuplicate: true,
       })
     } catch (_err) {
-      enqueueSnackbar<'error'>('Failed to move Prospect', {
+      showSnackbar('Failed to move Prospect', {
         variant: 'error',
-        preventDuplicate: true,
       })
     }
 
@@ -127,7 +126,7 @@ const UserHarems = ({
         prospects[i].hotLead === true &&
         prospects.slice(0, i).some((p) => p.hotLead === false)
       ) {
-        enqueueSnackbar('Error: Cannot move hot leads after cold leads', {
+        showSnackbar('Error: Cannot move hot leads after cold leads', {
           variant: 'error',
         })
         return
@@ -136,19 +135,18 @@ const UserHarems = ({
     // Validate before sending
     if (prospects.some((p) => !p.id)) {
       console.error('Invalid prospect data:', prospects)
-      enqueueSnackbar('Error: Invalid prospect data', { variant: 'error' })
+      showSnackbar('Error: Invalid prospect data', { variant: 'error' })
       return
     }
 
     try {
       await triggerReorderProspects(prospects).unwrap()
-      enqueueSnackbar<'success'>('Reordered Prospects Successfully', {
+      showSnackbar('Reordered Prospects Successfully', {
         variant: 'success',
-        preventDuplicate: true,
       })
     } catch (err) {
       const typedErr = err as { error: string }
-      enqueueSnackbar(`Error: ${typedErr.error || 'Failed to reorder'}`, {
+      showSnackbar(`Error: ${typedErr.error || 'Failed to reorder'}`, {
         variant: 'error',
       })
     }
