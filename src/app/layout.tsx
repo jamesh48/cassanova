@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 
 import { AuthProvider } from '@/contexts/auth-context'
@@ -15,6 +15,13 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 })
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  // This enables safe-area-inset
+  viewportFit: 'cover',
+}
+
 export const metadata: Metadata = {
   title: 'Cassanova',
   description: 'Created by James Hrivnak',
@@ -26,7 +33,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang='en'>
       <StoreProvider>
         <body className={`${geistSans.variable} ${geistMono.variable}`}>
           <AuthProvider>{children}</AuthProvider>

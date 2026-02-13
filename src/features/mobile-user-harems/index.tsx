@@ -67,7 +67,13 @@ const MobileUserHarems = ({
       display='flex'
       flexDirection='column'
       width='100%'
-      height='calc(100vh - 4rem)'
+      sx={{
+        position: 'absolute',
+        top: '4rem',
+        bottom: 0,
+        left: 0,
+        right: 0,
+      }}
     >
       {/* Scrollable content area */}
       <Box
@@ -75,6 +81,8 @@ const MobileUserHarems = ({
           flex: 1,
           overflow: 'auto',
           p: 1,
+          // Prevent scroll bounce on iOS
+          WebkitOverflowScrolling: 'touch',
         }}
       >
         <MobileUserHarem
@@ -86,7 +94,13 @@ const MobileUserHarems = ({
       </Box>
 
       {/* Fixed bottom controls */}
-      <Box sx={{ flexShrink: 0 }}>
+      <Box
+        sx={{
+          flexShrink: 0,
+          // Add safe area padding for iPhone home indicator
+          pb: 'max(8px, env(safe-area-inset-bottom))',
+        }}
+      >
         <Divider />
         <Box
           sx={{
@@ -95,7 +109,6 @@ const MobileUserHarems = ({
             justifyContent: 'center',
             gap: 1,
             p: 1,
-            mb: 1,
           }}
         >
           <Select

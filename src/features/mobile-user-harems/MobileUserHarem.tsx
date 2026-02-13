@@ -167,7 +167,8 @@ const MobileUserHarem = ({
           display: 'flex',
           flexDirection: 'column',
           flex: 1,
-          minHeight: 0, // Important for flex scrolling
+          // Important for flex scrolling
+          minHeight: 0,
           overflow: 'auto',
         }}
       >
