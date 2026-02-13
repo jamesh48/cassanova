@@ -9,22 +9,23 @@ interface MobileUserHaremProps {
     React.SetStateAction<Harem | undefined>
   >
   currentMobileUserHarem?: Harem
-  eligibleUserHarems?: Harem[]
+  userHarems?: Harem[]
   setCurrentUserHarem: React.Dispatch<React.SetStateAction<Harem | undefined>>
+  editHaremsMode: boolean
 }
 const MobileUserHarems = ({
   currentMobileUserHarem,
-  eligibleUserHarems,
+  userHarems,
   setCurrentMobileUserHarem,
   setCurrentUserHarem,
+  editHaremsMode,
 }: MobileUserHaremProps) => {
+  const showSnackbar = useSnackbar()
+  const [triggerMoveProspect] = useMoveProspectMutation()
+
   const handleOpenAddProspectDialog = (userHarem: Harem) => {
     setCurrentUserHarem(userHarem)
   }
-
-  const showSnackbar = useSnackbar()
-
-  const [triggerMoveProspect] = useMoveProspectMutation()
 
   const handleMoveProspect = useCallback(
     async (targetHaremId: number, prospectId: number) => {
@@ -49,10 +50,11 @@ const MobileUserHarems = ({
   return (
     <MobileUserHarem
       userHarem={currentMobileUserHarem}
-      userHarems={eligibleUserHarems}
+      userHarems={userHarems}
       setCurrentMobileUserHarem={setCurrentMobileUserHarem}
       onOpenProspect={handleOpenAddProspectDialog}
       handleMoveProspect={handleMoveProspect}
+      editHaremsMode={editHaremsMode}
     />
   )
 }

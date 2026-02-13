@@ -1,4 +1,10 @@
-import { PersonAdd } from '@mui/icons-material'
+import {
+  Check,
+  DeleteForeverOutlined,
+  EditOutlined,
+  // MoveDown,
+  PersonAdd,
+} from '@mui/icons-material'
 import {
   Box,
   Divider,
@@ -7,9 +13,16 @@ import {
   Paper,
   Select,
   Stack,
+  TextField,
   Typography,
 } from '@mui/material'
+import { useState } from 'react'
 import MobileListedProspect from '@/features/mobile-user-harems/MobileListedProspect'
+import { useFocusableInput, useSnackbar } from '@/hooks'
+import {
+  useDeleteUserHaremMutation,
+  useUpdateHaremMutation,
+} from '@/redux/services'
 import type { Harem } from '@/types'
 
 interface MobileUserHaremProps {
@@ -23,14 +36,60 @@ interface MobileUserHaremProps {
     targetHaremId: number,
     prospectId: number,
   ) => Promise<void>
+  editHaremsMode: boolean
 }
+
 const MobileUserHarem = ({
   userHarem,
   userHarems,
   setCurrentMobileUserHarem,
   onOpenProspect,
   handleMoveProspect,
+  editHaremsMode,
 }: MobileUserHaremProps) => {
+  const [editHaremName, setEditHaremName] = useState(userHarem?.name || '')
+  const [editHaremMode, setEditHaremMode] = useState(false)
+  const showSnackbar = useSnackbar()
+  const { setInputRef } = useFocusableInput(!!editHaremMode)
+  const [triggerUpdateHarem] = useUpdateHaremMutation()
+  const [triggerDeleteHarem] = useDeleteUserHaremMutation()
+
+  const handleSaveHaremEdits = async (updatedHarem: Harem) => {
+    try {
+      await triggerUpdateHarem({
+        ...updatedHarem,
+        name: editHaremName,
+      }).unwrap()
+      setEditHaremMode(false)
+      showSnackbar('Renamed Harem Successfully', {
+        variant: 'success',
+        preventDuplicate: true,
+      })
+    } catch (_err) {
+      showSnackbar('Failed to Rename Harem', {
+        variant: 'error',
+        preventDuplicate: true,
+      })
+    }
+  }
+
+  const handleDeleteHarem = async () => {
+    try {
+      if (userHarem?.prospects.length) {
+        showSnackbar('Harem must be empty before deletion', {
+          variant: 'error',
+        })
+        return
+      }
+      if (userHarem?.id) {
+        await triggerDeleteHarem({ id: userHarem?.id }).unwrap()
+        showSnackbar('Successfully deleted Harem!', { variant: 'success' })
+      }
+    } catch (_err) {
+      showSnackbar('Failed to Delete Harem', { variant: 'error' })
+    }
+  }
+
   return (
     <Paper
       elevation={12}
@@ -57,9 +116,64 @@ const MobileUserHarem = ({
         alignItems='center'
         mb={2}
       >
-        <Typography variant='h5' style={{ textDecoration: 'underline' }}>
-          {userHarem?.name}
-        </Typography>
+        {editHaremMode ? (
+          <Box display='flex' alignItems='center'>
+            <IconButton color='error' onClick={() => handleDeleteHarem()}>
+              <DeleteForeverOutlined />
+            </IconButton>
+            <TextField
+              slotProps={{ htmlInput: { style: { padding: '.25rem' } } }}
+              value={editHaremName}
+              onChange={(evt) => setEditHaremName(evt.target.value)}
+              inputRef={setInputRef}
+              onKeyDown={(evt) => {
+                if (evt.key === 'Enter' && userHarem) {
+                  handleSaveHaremEdits(userHarem)
+                }
+              }}
+            />
+          </Box>
+        ) : (
+          <Typography variant='h5' style={{ textDecoration: 'underline' }}>
+            {userHarem?.name}
+          </Typography>
+        )}
+
+        {editHaremsMode ? (
+          <Box display='flex' justifyContent='space-between'>
+            {editHaremMode ? (
+              <IconButton
+                color='success'
+                onClick={() => {
+                  if (userHarem) {
+                    handleSaveHaremEdits(userHarem)
+                  }
+                }}
+              >
+                <Check />
+              </IconButton>
+            ) : (
+              <IconButton color='info' onClick={() => setEditHaremMode(true)}>
+                <EditOutlined />
+              </IconButton>
+            )}
+
+            {/* <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '8px',
+                borderRadius: '4px',
+                '&:hover': {
+                  backgroundColor: 'action.hover',
+                },
+              }}
+            >
+              <MoveDown />
+            </Box> */}
+          </Box>
+        ) : null}
       </Box>
 
       {/* Scrollable Prospects List */}

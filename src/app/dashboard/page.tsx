@@ -65,8 +65,9 @@ export default function Dashboard() {
               component='h1'
               fontWeight={600}
               color='text.primary'
+              noWrap
             >
-              {editHaremsMode ? 'Edit Your Harems' : 'Your Harems'}
+              {editHaremsMode ? 'Edit Harems' : 'Your Harems'}
             </Typography>
 
             <Box display='flex' gap={1.5} alignItems='center'>
@@ -79,7 +80,7 @@ export default function Dashboard() {
                     fontWeight: 500,
                   }}
                 >
-                  Done Editing
+                  Done
                 </Button>
               )}
               <HaremActionsDropdown
@@ -105,8 +106,9 @@ export default function Dashboard() {
             <MobileUserHarems
               currentMobileUserHarem={currentMobileUserHarem || userHarems?.[0]}
               setCurrentMobileUserHarem={setCurrentMobileUserHarem}
-              eligibleUserHarems={userHarems}
+              userHarems={userHarems}
               setCurrentUserHarem={setCurrentUserHarem}
+              editHaremsMode={editHaremsMode}
             />
           ) : (
             <UserHarems
