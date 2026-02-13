@@ -1,18 +1,24 @@
+import { Visibility, VisibilityOff } from '@mui/icons-material'
 import {
   Box,
   Button,
   type ButtonProps,
+  IconButton,
+  InputAdornment,
   TextField,
+  Tooltip,
+  type TooltipProps,
   Typography,
 } from '@mui/material'
 import Link, { type LinkProps } from 'next/link'
 
-import type { ReactNode } from 'react'
+import { type ReactNode, useState } from 'react'
 import {
   Controller,
   type DefaultValues,
   type FieldValues,
   type Path,
+  type RegisterOptions,
   type SubmitErrorHandler,
   type SubmitHandler,
   useForm,
@@ -22,12 +28,18 @@ import { useFocusableInput, useSnackbar } from '@/hooks'
 type SimpleFormPropsBase<T extends FieldValues> = {
   onSubmit: SubmitHandler<T>
   title: string
-  inputs: { component: 'textfield'; label: string; name: Path<T> }[]
+  inputs: {
+    inputType: 'text' | 'password'
+    label: string
+    name: Path<T>
+    tooltipProps?: Omit<TooltipProps, 'children'>
+    rules?: RegisterOptions<T, Path<T>>
+  }[]
   actionButtonProps: ButtonProps
   secondaryButtonProps?: ButtonProps
   defaultValues?: DefaultValues<T>
   linkProps?: LinkProps & { children: ReactNode }
-  fullWidth?: boolean // New prop to control width behavior
+  fullWidth?: boolean
 }
 
 type SimpleFormProps<T extends FieldValues> = SimpleFormPropsBase<T> &
@@ -64,6 +76,17 @@ const SimpleForm = <T extends FieldValues>({
   const { handleSubmit, control, reset } = useForm<T>({ defaultValues })
   const { setInputRef } = useFocusableInput(true)
 
+  const [passwordVisibility, setPasswordVisibility] = useState<
+    Record<string, boolean>
+  >({})
+
+  const togglePasswordVisibility = (fieldName: string) => {
+    setPasswordVisibility((prev) => ({
+      ...prev,
+      [fieldName]: !prev[fieldName],
+    }))
+  }
+
   const handleLocalOnSubmitSuccess: SubmitHandler<T> = async (values) => {
     try {
       await onSubmit(values)
@@ -78,7 +101,13 @@ const SimpleForm = <T extends FieldValues>({
     }
   }
 
-  const handleLocalOnSubmitFailure: SubmitErrorHandler<T> = (_errors) => {}
+  const handleLocalOnSubmitFailure: SubmitErrorHandler<T> = (_errors) => {
+    // Show first validation error
+    const firstError = Object.values(_errors)[0]
+    if (firstError?.message) {
+      revealSnackbar(firstError.message as string, { variant: 'error' })
+    }
+  }
 
   return (
     <Box
@@ -111,23 +140,74 @@ const SimpleForm = <T extends FieldValues>({
         </Typography>
 
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {inputs.map((input, idx) => (
-            <Controller
-              key={input.name}
-              name={input.name}
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  inputRef={idx === 0 ? setInputRef : null}
-                  label={input.label}
-                  variant='outlined'
-                  fullWidth
-                  size='medium'
-                />
-              )}
-            />
-          ))}
+          {inputs.map((input, idx) => {
+            const isPasswordField = input.inputType === 'password'
+            const fieldName = input.name as string
+            const showPassword = passwordVisibility[fieldName] || false
+
+            return (
+              <Controller
+                key={input.name}
+                name={input.name}
+                control={control}
+                rules={input.rules}
+                defaultValue={'' as FieldValues[string]}
+                render={({ field, fieldState: { error } }) => {
+                  const textField = (
+                    <TextField
+                      {...field}
+                      value={field.value ?? ''} // Ensure value is never undefined
+                      type={
+                        isPasswordField && !showPassword ? 'password' : 'text'
+                      }
+                      inputRef={idx === 0 ? setInputRef : null}
+                      label={input.label}
+                      variant='outlined'
+                      fullWidth
+                      size='medium'
+                      error={!!error}
+                      helperText={error?.message}
+                      InputProps={
+                        isPasswordField
+                          ? {
+                              endAdornment: (
+                                <InputAdornment position='end'>
+                                  <IconButton
+                                    aria-label={
+                                      showPassword
+                                        ? 'hide password'
+                                        : 'show password'
+                                    }
+                                    onClick={() =>
+                                      togglePasswordVisibility(fieldName)
+                                    }
+                                    onMouseDown={(e) => e.preventDefault()}
+                                    edge='end'
+                                    size='small'
+                                  >
+                                    {showPassword ? (
+                                      <VisibilityOff />
+                                    ) : (
+                                      <Visibility />
+                                    )}
+                                  </IconButton>
+                                </InputAdornment>
+                              ),
+                            }
+                          : undefined
+                      }
+                    />
+                  )
+
+                  return input.tooltipProps ? (
+                    <Tooltip {...input.tooltipProps}>{textField}</Tooltip>
+                  ) : (
+                    textField
+                  )
+                }}
+              />
+            )
+          })}
         </Box>
 
         <Box

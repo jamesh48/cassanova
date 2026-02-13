@@ -8,7 +8,7 @@ export const cassanovaUnprotectedApi = createApi({
   tagTypes: [],
   baseQuery: fetchBaseQuery({ baseUrl }),
   endpoints: (builder) => ({
-    createUser: builder.mutation<{ token: string }, { email: string }>({
+    createUser: builder.mutation<{ token: string }, User>({
       query: (body) => ({
         url: 'user',
         method: 'POST',

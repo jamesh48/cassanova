@@ -21,7 +21,7 @@ const NewHarem = ({ handleCloseAddHaremDialog }: NewHaremProps) => {
       onSubmit={handleCreateHarem}
       defaultValues={{ name: '' }}
       title='Create Harem'
-      inputs={[{ name: 'name', label: 'Harem Name', component: 'textfield' }]}
+      inputs={[{ name: 'name', label: 'Harem Name', inputType: 'text' }]}
       actionButtonProps={{ children: 'Submit' }}
       fullWidth
       secondaryButtonProps={{

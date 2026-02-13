@@ -1,16 +1,15 @@
-import type { Metadata } from "next";
-import PageContainer from "@/components/page-container";
-import CreateUser from "@/features/create-user";
+'use client'
 
-export const metadata: Metadata = {
-  title: "Login",
-  description: "Login to your account",
-};
+import { SnackbarProvider } from 'notistack'
+import PageContainer from '@/components/page-container'
+import CreateUser from '@/features/create-user'
 
 export default function Page() {
   return (
-    <PageContainer>
-      <CreateUser />
-    </PageContainer>
-  );
+    <SnackbarProvider>
+      <PageContainer>
+        <CreateUser />
+      </PageContainer>
+    </SnackbarProvider>
+  )
 }

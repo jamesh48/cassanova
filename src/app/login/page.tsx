@@ -1,16 +1,15 @@
-import type { Metadata } from 'next'
+'use client'
+
+import { SnackbarProvider } from 'notistack'
 import PageContainer from '@/components/page-container'
 import UserLogin from '@/features/login'
 
-export const metadata: Metadata = {
-  title: 'Login',
-  description: 'Login to your account',
-}
-
 export default function Page() {
   return (
-    <PageContainer>
-      <UserLogin />
-    </PageContainer>
+    <SnackbarProvider>
+      <PageContainer>
+        <UserLogin />
+      </PageContainer>
+    </SnackbarProvider>
   )
 }

@@ -35,7 +35,7 @@ const NewProspect = ({
         {
           name: 'name',
           label: 'Prospect Name',
-          component: 'textfield',
+          inputType: 'text',
         },
       ]}
       fullWidth
