@@ -6,9 +6,11 @@ import { useState } from 'react'
 import HaremActionsDropdown from '@/components/harem-actions-dropdown'
 import ProtectedRoute from '@/components/protected-route'
 import { useAuth } from '@/contexts/auth-context'
+import MobileUserHarems from '@/features/mobile-user-harems'
 import NewHarem from '@/features/new-harem'
 import NewProspect from '@/features/prospect'
 import UserHarems from '@/features/user-harems'
+import { useMobileBrowserCheck } from '@/hooks'
 import { useGetAllHaremsQuery } from '@/redux/services'
 import type { Harem } from '@/types'
 
@@ -17,6 +19,9 @@ export default function Dashboard() {
   const [currentUserHarem, setCurrentUserHarem] = useState<Harem>()
   const [openHaremDialog, setOpenHaremDialog] = useState(false)
   const [editHaremsMode, setEditHaremsMode] = useState(false)
+  const [currentMobileUserHarem, setCurrentMobileUserHarem] = useState<
+    Harem | undefined
+  >()
 
   const { data: userHarems } = useGetAllHaremsQuery()
 
@@ -27,6 +32,8 @@ export default function Dashboard() {
   const handleEditHarems = () => {
     setEditHaremsMode((prev) => !prev)
   }
+
+  const isMobile = useMobileBrowserCheck()
 
   return (
     <ProtectedRoute>
@@ -39,7 +46,7 @@ export default function Dashboard() {
           bgcolor: 'background.default',
         }}
       >
-        <SnackbarProvider />
+        <SnackbarProvider dense={isMobile} />
 
         {/* Navigation Bar */}
         <AppBar
@@ -94,11 +101,20 @@ export default function Dashboard() {
             p: 2,
           }}
         >
-          <UserHarems
-            userHarems={userHarems}
-            setCurrentUserHarem={setCurrentUserHarem}
-            editHaremsMode={editHaremsMode}
-          />
+          {isMobile ? (
+            <MobileUserHarems
+              currentMobileUserHarem={currentMobileUserHarem || userHarems?.[0]}
+              setCurrentMobileUserHarem={setCurrentMobileUserHarem}
+              eligibleUserHarems={userHarems}
+              setCurrentUserHarem={setCurrentUserHarem}
+            />
+          ) : (
+            <UserHarems
+              userHarems={userHarems}
+              setCurrentUserHarem={setCurrentUserHarem}
+              editHaremsMode={editHaremsMode}
+            />
+          )}
         </Box>
 
         {/* Dialogs */}

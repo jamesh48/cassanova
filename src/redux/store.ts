@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit'
+import { cassanovaUnprotectedApi } from '@/redux/services/unprotected'
 import rootReducer from './rootReducer'
-
-import { cassanovaApi } from './services'
+import { cassanovaProtectedApi } from './services'
 
 export default class GlobalStore {
   public store:
@@ -18,12 +18,14 @@ export default class GlobalStore {
     const innerStore = configureStore({
       reducer: {
         ...rootReducer,
-        [cassanovaApi.reducerPath]: cassanovaApi.reducer,
+        [cassanovaProtectedApi.reducerPath]: cassanovaProtectedApi.reducer,
+        [cassanovaUnprotectedApi.reducerPath]: cassanovaUnprotectedApi.reducer,
       },
       preloadedState: initialState,
       middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({ serializableCheck: { warnAfter: 100 } }).concat(
-          cassanovaApi.middleware,
+          cassanovaProtectedApi.middleware,
+          cassanovaUnprotectedApi.middleware,
         ),
     })
     this.store = innerStore

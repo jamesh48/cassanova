@@ -22,24 +22,14 @@ dayjs.extend(utc)
 interface ListedProspectProps {
   userHaremProspect: Prospect
   prospectIndex: number
-  onProspectDragStart: (prospectId: number, prospectIndex: number) => void
-  onProspectDragEnd: () => void
-  isDragging: boolean
 }
 
-const ListedProspect = ({
-  userHaremProspect,
-  onProspectDragStart,
-  onProspectDragEnd,
-  isDragging,
-  prospectIndex,
-}: ListedProspectProps) => {
+const MobileListedProspect = ({ userHaremProspect }: ListedProspectProps) => {
+  const showSnackbar = useSnackbar()
   const [editListedProspectMode, setEditListedProspectMode] = useState(false)
   const [editListedProspectValue, setEditListedProspectValue] = useState(
     userHaremProspect.name,
   )
-  const showSnackbar = useSnackbar()
-  const [isProspectDraggable, setIsProspectDraggable] = useState(false)
   const [triggerMarkListedProspectHot] = useUpdateProspectMutation()
   const [triggerUpdateProspect] = useUpdateProspectMutation()
   const [triggerDeleteProspect] = useDeleteProspectMutation()
@@ -53,7 +43,7 @@ const ListedProspect = ({
         ...updatedProspect,
         hotLead,
       }).unwrap()
-      showSnackbar(`Marked Prospect as ${hotLead ? 'hot' : 'not hot'}`, {
+      showSnackbar(`Marked Prospect as ${hotLead ? 'Hot' : 'not Hot'}`, {
         variant: 'success',
       })
     } catch (_err) {
@@ -70,7 +60,6 @@ const ListedProspect = ({
       setEditListedProspectMode(false)
       showSnackbar('Renamed Prospect Successfully', {
         variant: 'success',
-        preventDuplicate: true,
       })
     } catch (_err) {
       showSnackbar('Failed to rename Prospect', { variant: 'error' })
@@ -91,16 +80,6 @@ const ListedProspect = ({
     }
   }
 
-  const handleProspectMouseDown = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    setIsProspectDraggable(true)
-  }
-
-  const handleProspectMouseUp = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    setIsProspectDraggable(false)
-  }
-
   const daysOnDashboard = useMemo(() => {
     const now = dayjs.utc()
     const createdAt = dayjs.utc(userHaremProspect.createdAt)
@@ -119,29 +98,20 @@ const ListedProspect = ({
 
   return (
     <Box
-      draggable={isProspectDraggable}
-      onDragStart={(e) => {
-        e.stopPropagation()
-        onProspectDragStart(userHaremProspect.id, prospectIndex)
-      }}
-      onDragEnd={(e) => {
-        e.stopPropagation()
-        onProspectDragEnd()
-        setIsProspectDraggable(false)
-      }}
+      draggable={false}
       sx={{
         display: 'flex',
         flexDirection: 'column',
         gap: 0.5,
         padding: '8px',
         borderRadius: '8px',
-        opacity: isDragging ? 0.5 : 1,
-        backgroundColor: isDragging ? 'action.selected' : 'background.paper',
+
+        backgroundColor: 'background.paper',
         border: '1px solid',
-        borderColor: isDragging ? 'primary.main' : 'divider',
+        borderColor: 'divider',
         transition: 'all 0.2s ease',
         '&:hover': {
-          backgroundColor: isDragging ? 'action.selected' : 'action.hover',
+          backgroundColor: 'action.hover',
           borderColor: 'primary.light',
         },
       }}
@@ -221,10 +191,7 @@ const ListedProspect = ({
           </IconButton>
 
           <Box
-            onMouseDown={handleProspectMouseDown}
-            onMouseUp={handleProspectMouseUp}
             sx={{
-              cursor: isDragging ? 'grabbing' : 'grab',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -260,4 +227,4 @@ const ListedProspect = ({
   )
 }
 
-export default ListedProspect
+export default MobileListedProspect

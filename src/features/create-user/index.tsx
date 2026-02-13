@@ -3,23 +3,18 @@
 import { useRouter } from 'next/navigation'
 import type { SubmitHandler } from 'react-hook-form'
 import SimpleForm from '@/components/shared-components'
+import { useCreateUserMutation } from '@/redux/services/unprotected'
 import type { User } from '@/types'
 
 const CreateUser = () => {
   const router = useRouter()
+
+  const [triggerCreateUser] = useCreateUserMutation()
   const handleCreateUser: SubmitHandler<User> = async (values) => {
-    const response = await fetch('http://localhost:3030/api/create-user', {
-      method: 'POST',
-      body: JSON.stringify({ email: values.email }),
-      headers: { 'Content-Type': 'application/json' },
-    })
+    const result = await triggerCreateUser({ email: values.email }).unwrap()
 
-    const result = await response.json()
-
-    if (response.ok) {
-      localStorage.setItem('authToken', result.token)
-      router.push('/')
-    }
+    localStorage.setItem('authToken', result.token)
+    router.push('/')
   }
 
   return (

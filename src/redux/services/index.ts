@@ -1,11 +1,13 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import type { Harem, Prospect } from '@/types'
 
-export const cassanovaApi = createApi({
-  reducerPath: 'itemsApi',
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3030/api/'
+
+export const cassanovaProtectedApi = createApi({
+  reducerPath: 'protectedApi',
   tagTypes: ['Prospects', 'Harems'],
   baseQuery: fetchBaseQuery({
-    baseUrl: 'http://localhost:3030/api/',
+    baseUrl,
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('authToken')
       if (token) {
@@ -15,6 +17,9 @@ export const cassanovaApi = createApi({
     },
   }),
   endpoints: (builder) => ({
+    validateToken: builder.query<void, void>({
+      query: () => ({ url: 'validate-token', method: 'GET' }),
+    }),
     createProspect: builder.mutation<void, Pick<Prospect, 'name' | 'haremId'>>({
       query: (body) => ({
         url: 'prospect',
@@ -112,4 +117,6 @@ export const {
   useMoveProspectMutation,
   useReorderProspectsMutation,
   useUpdateProspectMutation,
-} = cassanovaApi
+  // Token
+  useLazyValidateTokenQuery,
+} = cassanovaProtectedApi

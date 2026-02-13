@@ -1,13 +1,8 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
+import { useLazyValidateTokenQuery } from '@/redux/services'
 
 type AuthContextType = {
   isAuthenticated: boolean
@@ -23,42 +18,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const router = useRouter()
 
-  // Validate token with your API
-  const validateToken = useCallback(
-    async (tokenToValidate: string): Promise<boolean> => {
-      try {
-        const response = await fetch(
-          'http://localhost:3030/api/validate-token',
-          {
-            headers: {
-              Authorization: `Bearer ${tokenToValidate}`,
-            },
-          },
-        )
-        // Returns true for 200, false for 401/403
-        return response.ok
-      } catch (error) {
-        console.error('Token validation failed:', error)
-        return false
-      }
-    },
-    [],
-  )
+  const [triggerValidateToken] = useLazyValidateTokenQuery()
+  const router = useRouter()
 
   useEffect(() => {
     const checkAuth = async () => {
       const storedToken = localStorage.getItem('authToken')
 
       if (storedToken) {
-        const isValid = await validateToken(storedToken)
-
-        if (isValid) {
+        try {
+          await triggerValidateToken().unwrap()
           setToken(storedToken)
           setIsAuthenticated(true)
-        } else {
-          // Token is stale/invalid
+        } catch (error) {
+          // Token is invalid/expired
+          console.error('Token validation failed:', error)
           localStorage.removeItem('authToken')
           setToken(null)
           setIsAuthenticated(false)
@@ -70,7 +45,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     checkAuth()
-  }, [router, validateToken])
+  }, [router, triggerValidateToken])
 
   const login = (newToken: string) => {
     localStorage.setItem('authToken', newToken)

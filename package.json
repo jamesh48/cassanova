@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:prod": "NEXT_PUBLIC_API_URL=https://data.cassanova.net/api npm run build",
     "start": "next start",
     "lint": "biome check",
     "format": "biome format --write"
