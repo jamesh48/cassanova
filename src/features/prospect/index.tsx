@@ -24,12 +24,16 @@ const NewProspect = ({
     values,
   ) => {
     if (currentUserHarem?.id) {
-      await triggerCreateProspect({
-        name: values.name,
-        haremId: currentUserHarem.id,
-      }).unwrap()
+      try {
+        await triggerCreateProspect({
+          name: values.name,
+          haremId: currentUserHarem.id,
+        }).unwrap()
 
-      handleCloseProspectDialog()
+        handleCloseProspectDialog()
+      } catch (_err) {
+        // TODO: handle error
+      }
     }
   }
 

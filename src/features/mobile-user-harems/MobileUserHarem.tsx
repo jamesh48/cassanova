@@ -17,7 +17,7 @@ import {
 import type { Harem } from '@/types'
 
 interface MobileUserHaremProps {
-  userHarem: Harem
+  activeMobileUserHarem: Harem
   userHarems?: Harem[]
   handleMoveProspect: (
     targetHaremId: number,
@@ -27,12 +27,12 @@ interface MobileUserHaremProps {
 }
 
 const MobileUserHarem = ({
-  userHarem,
+  activeMobileUserHarem,
   userHarems,
   handleMoveProspect,
   editHaremsMode,
 }: MobileUserHaremProps) => {
-  const [editHaremName, setEditHaremName] = useState(userHarem.name)
+  const [editHaremName, setEditHaremName] = useState(activeMobileUserHarem.name)
   const [editHaremMode, setEditHaremMode] = useState(false)
   const showSnackbar = useSnackbar()
   const { setInputRef } = useFocusableInput(!!editHaremMode)
@@ -60,14 +60,14 @@ const MobileUserHarem = ({
 
   const handleDeleteHarem = async () => {
     try {
-      if (userHarem?.prospects.length) {
+      if (activeMobileUserHarem?.prospects.length) {
         showSnackbar('Harem must be empty before deletion', {
           variant: 'error',
         })
         return
       }
-      if (userHarem?.id) {
-        await triggerDeleteHarem({ id: userHarem?.id }).unwrap()
+      if (activeMobileUserHarem?.id) {
+        await triggerDeleteHarem({ id: activeMobileUserHarem?.id }).unwrap()
         showSnackbar('Successfully deleted Harem!', { variant: 'success' })
       }
     } catch (_err) {
@@ -112,15 +112,15 @@ const MobileUserHarem = ({
               onChange={(evt) => setEditHaremName(evt.target.value)}
               inputRef={setInputRef}
               onKeyDown={(evt) => {
-                if (evt.key === 'Enter' && userHarem) {
-                  handleSaveHaremEdits(userHarem)
+                if (evt.key === 'Enter' && activeMobileUserHarem) {
+                  handleSaveHaremEdits(activeMobileUserHarem)
                 }
               }}
             />
           </Box>
         ) : (
           <Typography variant='h5' style={{ textDecoration: 'underline' }}>
-            {userHarem.name}
+            {activeMobileUserHarem.name}
           </Typography>
         )}
 
@@ -130,8 +130,8 @@ const MobileUserHarem = ({
               <IconButton
                 color='success'
                 onClick={() => {
-                  if (userHarem) {
-                    handleSaveHaremEdits(userHarem)
+                  if (activeMobileUserHarem) {
+                    handleSaveHaremEdits(activeMobileUserHarem)
                   }
                 }}
               >
@@ -194,14 +194,14 @@ const MobileUserHarem = ({
             },
           }}
         >
-          {userHarem.prospects.length ? (
-            userHarem.prospects.map((userHaremProspect) => (
+          {activeMobileUserHarem.prospects.length ? (
+            activeMobileUserHarem.prospects.map((userHaremProspect) => (
               <Box key={userHaremProspect.id}>
                 <MobileListedProspect
                   userHaremProspect={userHaremProspect}
                   handleMoveProspect={handleMoveProspect}
                   userHarems={userHarems || []}
-                  currentHaremId={userHarem.id}
+                  currentHaremId={activeMobileUserHarem.id}
                 />
               </Box>
             ))

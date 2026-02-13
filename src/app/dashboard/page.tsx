@@ -16,10 +16,11 @@ import type { Harem } from '@/types'
 
 const Dashboard = () => {
   const { logout } = useAuth()
-  const [currentUserHarem, setCurrentUserHarem] = useState<Harem>()
+  const [currentUserHaremForProspect, setCurrentUserHaremForProspect] =
+    useState<Harem>()
   const [openHaremDialog, setOpenHaremDialog] = useState(false)
   const [editHaremsMode, setEditHaremsMode] = useState(false)
-  const [currentMobileUserHaremId, setCurrentMobileUserHaremId] = useState<
+  const [activeMobileUserHaremId, setActiveMobileUserHaremId] = useState<
     number | undefined
   >()
 
@@ -48,7 +49,7 @@ const Dashboard = () => {
       >
         <SnackbarProvider dense={isMobile} />
 
-        {/* Navigation Bar */}
+        {/* Navigation Bar - Fixed at top */}
         <AppBar
           position='static'
           color='default'
@@ -57,6 +58,8 @@ const Dashboard = () => {
             borderBottom: 1,
             borderColor: 'divider',
             bgcolor: 'background.paper',
+            // Prevent AppBar from shrinking
+            flexShrink: 0,
           }}
         >
           <Toolbar sx={{ justifyContent: 'space-between', py: 1 }}>
@@ -93,39 +96,41 @@ const Dashboard = () => {
           </Toolbar>
         </AppBar>
 
-        {/* Main Content */}
+        {/* Main Content - Scrollable area */}
         <Box
           component='main'
           sx={{
             flex: 1,
             overflow: 'hidden',
-            position: 'relative',
-            // Remove padding on mobile
+            display: 'flex',
+            flexDirection: 'column',
             p: isMobile ? 0 : 2,
           }}
         >
           {isMobile ? (
             <MobileUserHarems
-              currentMobileUserHaremId={currentMobileUserHaremId}
-              setCurrentMobileUserHaremId={setCurrentMobileUserHaremId}
+              activeMobileUserHaremId={activeMobileUserHaremId}
+              setActiveMobileUserHaremId={setActiveMobileUserHaremId}
               userHarems={userHarems}
-              setCurrentUserHarem={setCurrentUserHarem}
               editHaremsMode={editHaremsMode}
+              setCurrentUserHaremForProspect={setCurrentUserHaremForProspect}
             />
           ) : (
             <UserHarems
               userHarems={userHarems}
-              setCurrentUserHarem={setCurrentUserHarem}
+              setCurrentUserHaremForProspect={setCurrentUserHaremForProspect}
               editHaremsMode={editHaremsMode}
             />
           )}
         </Box>
 
         {/* Dialogs */}
-        <Dialog open={!!currentUserHarem} maxWidth='sm' fullWidth>
+        <Dialog open={!!currentUserHaremForProspect} maxWidth='sm' fullWidth>
           <NewProspect
-            currentUserHarem={currentUserHarem}
-            handleCloseProspectDialog={() => setCurrentUserHarem(undefined)}
+            currentUserHarem={currentUserHaremForProspect}
+            handleCloseProspectDialog={() =>
+              setCurrentUserHaremForProspect(undefined)
+            }
           />
         </Dialog>
 

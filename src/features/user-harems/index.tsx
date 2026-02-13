@@ -11,13 +11,15 @@ import UserHarem from './user-harem'
 
 interface UserHaremsProps {
   userHarems?: Harem[]
-  setCurrentUserHarem: React.Dispatch<React.SetStateAction<Harem | undefined>>
+  setCurrentUserHaremForProspect: React.Dispatch<
+    React.SetStateAction<Harem | undefined>
+  >
   editHaremsMode: boolean
 }
 
 const UserHarems = ({
   userHarems,
-  setCurrentUserHarem,
+  setCurrentUserHaremForProspect,
   editHaremsMode,
 }: UserHaremsProps) => {
   const showSnackbar = useSnackbar()
@@ -158,7 +160,7 @@ const UserHarems = ({
   }
 
   const handleOpenAddProspectDialog = (userHarem: Harem) => {
-    setCurrentUserHarem(userHarem)
+    setCurrentUserHaremForProspect(userHarem)
   }
 
   return (

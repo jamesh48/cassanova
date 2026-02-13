@@ -1,44 +1,43 @@
-import { PersonAdd } from '@mui/icons-material'
-import { Box, Divider, IconButton, MenuItem, Select } from '@mui/material'
+import { Box, Divider } from '@mui/material'
 import { useCallback, useMemo } from 'react'
 import MobileUserHarem from '@/features/mobile-user-harems/MobileUserHarem'
+import SelectMobileHaremFooter from '@/features/user-harems/mobile/SelectMobileHaremFooter'
 import { useSnackbar } from '@/hooks'
 import { useMoveProspectMutation } from '@/redux/services'
 import type { Harem } from '@/types'
 
 interface MobileUserHaremProps {
-  currentMobileUserHaremId?: number
-  setCurrentMobileUserHaremId: React.Dispatch<
+  activeMobileUserHaremId?: number
+  setActiveMobileUserHaremId: React.Dispatch<
     React.SetStateAction<number | undefined>
   >
+  setCurrentUserHaremForProspect: React.Dispatch<
+    React.SetStateAction<Harem | undefined>
+  >
   userHarems?: Harem[]
-  setCurrentUserHarem: React.Dispatch<React.SetStateAction<Harem | undefined>>
   editHaremsMode: boolean
 }
 
 const MobileUserHarems = ({
-  currentMobileUserHaremId,
+  activeMobileUserHaremId,
   userHarems,
-  setCurrentMobileUserHaremId,
-  setCurrentUserHarem,
+  setActiveMobileUserHaremId,
   editHaremsMode,
+  setCurrentUserHaremForProspect,
 }: MobileUserHaremProps) => {
   const showSnackbar = useSnackbar()
   const [triggerMoveProspect] = useMoveProspectMutation()
 
-  const currentMobileUserHarem = useMemo(() => {
-    if (!currentMobileUserHaremId || !userHarems) return userHarems?.[0]
+  const activeMobileUserHarem = useMemo(() => {
+    if (!activeMobileUserHaremId || !userHarems) return userHarems?.[0]
     return (
-      userHarems.find((h) => h.id === currentMobileUserHaremId) || userHarems[0]
+      userHarems.find((h) => h.id === activeMobileUserHaremId) || userHarems[0]
     )
-  }, [currentMobileUserHaremId, userHarems])
+  }, [activeMobileUserHaremId, userHarems])
 
-  const handleOpenAddProspectDialog = useCallback(
-    (userHarem: Harem) => {
-      setCurrentUserHarem(userHarem)
-    },
-    [setCurrentUserHarem],
-  )
+  const handleOpenAddProspectDialog = useCallback(() => {
+    setCurrentUserHaremForProspect(activeMobileUserHarem)
+  }, [setCurrentUserHaremForProspect, activeMobileUserHarem])
 
   const handleMoveProspect = useCallback(
     async (targetHaremId: number, prospectId: number) => {
@@ -60,16 +59,17 @@ const MobileUserHarems = ({
     [showSnackbar, triggerMoveProspect],
   )
 
-  if (!currentMobileUserHarem) return null
+  if (!activeMobileUserHarem) return null
 
   return (
     <Box
       display='flex'
       flexDirection='column'
       width='100%'
-      height='100%' // Changed from absolute positioning
+      height='100%'
       sx={{
-        overflow: 'hidden', // Prevent any scrolling at this level
+        // Prevent any scrolling at this level
+        overflow: 'hidden',
       }}
     >
       {/* Scrollable content area */}
@@ -82,7 +82,7 @@ const MobileUserHarems = ({
         }}
       >
         <MobileUserHarem
-          userHarem={currentMobileUserHarem}
+          activeMobileUserHarem={activeMobileUserHarem}
           userHarems={userHarems}
           handleMoveProspect={handleMoveProspect}
           editHaremsMode={editHaremsMode}
@@ -97,37 +97,14 @@ const MobileUserHarems = ({
         }}
       >
         <Divider />
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 1,
-            p: 1,
-          }}
-        >
-          <Select
-            fullWidth
-            onChange={(evt) => {
-              setCurrentMobileUserHaremId(evt.target.value as number)
-            }}
-            value={currentMobileUserHarem.id}
-            displayEmpty
-          >
-            {userHarems?.map((eligibleHarem) => (
-              <MenuItem key={eligibleHarem.id} value={eligibleHarem.id}>
-                {eligibleHarem.name || 'Unnamed'}
-              </MenuItem>
-            ))}
-          </Select>
-          <IconButton
-            color='success'
-            onClick={() => handleOpenAddProspectDialog(currentMobileUserHarem)}
-            aria-label='Add prospect'
-          >
-            <PersonAdd />
-          </IconButton>
-        </Box>
+
+        <SelectMobileHaremFooter
+          activeMobileUserHaremId={activeMobileUserHarem.id}
+          userHarems={userHarems}
+          currentUserHaremForProspect={activeMobileUserHarem}
+          setActiveMobileUserHaremId={setActiveMobileUserHaremId}
+          handleOpenAddProspectDialog={handleOpenAddProspectDialog}
+        />
       </Box>
     </Box>
   )
