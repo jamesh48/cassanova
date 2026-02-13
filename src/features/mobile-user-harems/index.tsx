@@ -47,7 +47,7 @@ const MobileUserHarems = ({
     [showSnackbar, triggerMoveProspect],
   )
 
-  return (
+  return currentMobileUserHarem ? (
     <MobileUserHarem
       userHarem={currentMobileUserHarem}
       userHarems={userHarems}
@@ -56,7 +56,7 @@ const MobileUserHarems = ({
       handleMoveProspect={handleMoveProspect}
       editHaremsMode={editHaremsMode}
     />
-  )
+  ) : null
 }
 
 export default MobileUserHarems

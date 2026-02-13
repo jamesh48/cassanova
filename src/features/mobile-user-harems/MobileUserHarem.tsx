@@ -26,7 +26,7 @@ import {
 import type { Harem } from '@/types'
 
 interface MobileUserHaremProps {
-  userHarem?: Harem
+  userHarem: Harem
   userHarems?: Harem[]
   setCurrentMobileUserHarem: React.Dispatch<
     React.SetStateAction<Harem | undefined>
@@ -47,7 +47,7 @@ const MobileUserHarem = ({
   handleMoveProspect,
   editHaremsMode,
 }: MobileUserHaremProps) => {
-  const [editHaremName, setEditHaremName] = useState(userHarem?.name || '')
+  const [editHaremName, setEditHaremName] = useState(userHarem.name)
   const [editHaremMode, setEditHaremMode] = useState(false)
   const showSnackbar = useSnackbar()
   const { setInputRef } = useFocusableInput(!!editHaremMode)
@@ -135,7 +135,7 @@ const MobileUserHarem = ({
           </Box>
         ) : (
           <Typography variant='h5' style={{ textDecoration: 'underline' }}>
-            {userHarem?.name}
+            {userHarem.name}
           </Typography>
         )}
 
@@ -207,7 +207,7 @@ const MobileUserHarem = ({
             },
           }}
         >
-          {userHarem?.prospects.length ? (
+          {userHarem.prospects.length ? (
             userHarem.prospects.map((userHaremProspect) => (
               <Box key={userHaremProspect.id}>
                 <MobileListedProspect

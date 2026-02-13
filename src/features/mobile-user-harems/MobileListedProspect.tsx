@@ -18,7 +18,7 @@ import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { useMemo, useState } from 'react'
 import MobileMoveProspectDialogContents from '@/features/mobile-user-harems/MobileMoveProspectDialogContents'
-import { useSnackbar } from '@/hooks'
+import { useFocusableInput, useSnackbar } from '@/hooks'
 import {
   useDeleteProspectMutation,
   useUpdateProspectMutation,
@@ -52,6 +52,7 @@ const MobileListedProspect = ({
   const [triggerMarkListedProspectHot] = useUpdateProspectMutation()
   const [triggerUpdateProspect] = useUpdateProspectMutation()
   const [triggerDeleteProspect] = useDeleteProspectMutation()
+  const { setInputRef } = useFocusableInput(editListedProspectMode)
 
   const handleMarkListedProspectHot = async (
     updatedProspect: Prospect,
@@ -152,6 +153,7 @@ const MobileListedProspect = ({
               slotProps={{ htmlInput: { style: { padding: '.25rem' } } }}
               onChange={(evt) => setEditListedProspectValue(evt.target.value)}
               value={editListedProspectValue}
+              inputRef={setInputRef}
               onKeyDown={(evt) => {
                 if (evt.key === 'Enter') {
                   handleUpdateListedProspectName(userHaremProspect)
