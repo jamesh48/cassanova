@@ -28,8 +28,8 @@ import type { Harem } from '@/types'
 interface MobileUserHaremProps {
   userHarem: Harem
   userHarems?: Harem[]
-  setCurrentMobileUserHarem: React.Dispatch<
-    React.SetStateAction<Harem | undefined>
+  setCurrentMobileUserHaremId: React.Dispatch<
+    React.SetStateAction<number | undefined>
   >
   onOpenProspect: (selectedHarem: Harem) => void
   handleMoveProspect: (
@@ -42,7 +42,7 @@ interface MobileUserHaremProps {
 const MobileUserHarem = ({
   userHarem,
   userHarems,
-  setCurrentMobileUserHarem,
+  setCurrentMobileUserHaremId,
   onOpenProspect,
   handleMoveProspect,
   editHaremsMode,
@@ -191,7 +191,8 @@ const MobileUserHarem = ({
             display: 'flex',
             flexDirection: 'column',
             rowGap: 1,
-            pr: 0.5, // Padding for scrollbar
+            // Padding for scrollbar
+            pr: 0.5,
             '&::-webkit-scrollbar': {
               width: '8px',
             },
@@ -233,13 +234,8 @@ const MobileUserHarem = ({
           <Select
             fullWidth
             onChange={(evt) => {
-              const value = evt.target.value
-              const foundHarem = userHarems?.find(
-                (eligibleHarem) => eligibleHarem.id === value,
-              )
-              if (foundHarem) {
-                setCurrentMobileUserHarem(foundHarem)
-              }
+              const value = evt.target.value as number
+              setCurrentMobileUserHaremId(value)
             }}
             value={userHarem?.id ?? ''}
             displayEmpty

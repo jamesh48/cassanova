@@ -118,14 +118,12 @@ const MobileListedProspect = ({
 
   return (
     <Box
-      draggable={false}
       sx={{
         display: 'flex',
         flexDirection: 'column',
         gap: 0.5,
         padding: '8px',
         borderRadius: '8px',
-
         backgroundColor: 'background.paper',
         border: '1px solid',
         borderColor: 'divider',

@@ -4,10 +4,10 @@ import { useRouter } from 'next/navigation'
 import type { SubmitHandler } from 'react-hook-form'
 import SimpleForm from '@/components/shared-components'
 import { useAuth } from '@/contexts/auth-context'
-import { useSnackbar } from '@/hooks'
+import { useMobileBrowserCheck, useSnackbar } from '@/hooks'
 import { useCreateUserMutation } from '@/redux/services/unprotected'
 
-type CreateUserForm = {
+interface CreateUserFormValues {
   email: string
   password: string
   confirmPassword: string
@@ -17,10 +17,13 @@ const CreateUser = () => {
   const router = useRouter()
   const { login } = useAuth()
   const showSnackbar = useSnackbar()
+  const isMobile = useMobileBrowserCheck()
   const [triggerCreateUser, { isLoading: isLoadingCreateUser }] =
     useCreateUserMutation()
 
-  const handleCreateUser: SubmitHandler<CreateUserForm> = async (values) => {
+  const handleCreateUser: SubmitHandler<CreateUserFormValues> = async (
+    values,
+  ) => {
     try {
       const result = await triggerCreateUser({
         email: values.email,
@@ -31,22 +34,24 @@ const CreateUser = () => {
 
       showSnackbar('Account created successfully!', { variant: 'success' })
 
+      // Small delay to allow user to see success message
       setTimeout(() => {
-        router.push('/')
-      }, 100)
+        router.push('/dashboard')
+      }, 500)
     } catch (err) {
-      const typedErr = err as { data: { error: string; details?: string[] } }
-      const errorMessage = typedErr.data.details
+      const typedErr = err as { data?: { error?: string; details?: string[] } }
+      const errorMessage = typedErr.data?.details
         ? `${typedErr.data.error}: ${typedErr.data.details.join(', ')}`
-        : typedErr.data.error
+        : typedErr.data?.error || 'Failed to create account'
       showSnackbar(errorMessage, { variant: 'error' })
     }
   }
 
   return (
-    <SimpleForm<CreateUserForm>
+    <SimpleForm<CreateUserFormValues>
       onSubmit={handleCreateUser}
-      title='Create User'
+      title='Create Account'
+      subtitle='Sign up to start organizing your prospects'
       inputs={[
         {
           label: 'Email',
@@ -55,8 +60,8 @@ const CreateUser = () => {
           rules: {
             required: 'Email is required',
             pattern: {
-              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-              message: 'Invalid email format',
+              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+              message: 'Invalid email address',
             },
           },
         },
@@ -70,6 +75,12 @@ const CreateUser = () => {
               value: 8,
               message: 'Password must be at least 8 characters',
             },
+            pattern: {
+              value:
+                /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+              message:
+                'Password must contain uppercase, lowercase, number, and special character',
+            },
           },
           tooltipProps: {
             title: (
@@ -82,7 +93,7 @@ const CreateUser = () => {
                 <br />• One special character (!@#$%^&*...)
               </>
             ),
-            placement: 'right',
+            placement: isMobile ? 'top' : 'right',
             arrow: true,
           },
         },
@@ -106,11 +117,16 @@ const CreateUser = () => {
         variant: 'contained',
         children: 'Create Account',
         loading: isLoadingCreateUser,
+        disabled: isLoadingCreateUser,
       }}
       secondaryButtonProps={{
         variant: 'outlined',
         children: 'Back to Login',
+        onClick: () => router.push('/login'),
+      }}
+      linkProps={{
         href: '/login',
+        children: 'Already have an account? Sign in',
       }}
       showSnackbar={false}
     />

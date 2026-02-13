@@ -19,8 +19,8 @@ export default function Dashboard() {
   const [currentUserHarem, setCurrentUserHarem] = useState<Harem>()
   const [openHaremDialog, setOpenHaremDialog] = useState(false)
   const [editHaremsMode, setEditHaremsMode] = useState(false)
-  const [currentMobileUserHarem, setCurrentMobileUserHarem] = useState<
-    Harem | undefined
+  const [currentMobileUserHaremId, setCurrentMobileUserHaremId] = useState<
+    number | undefined
   >()
 
   const { data: userHarems } = useGetAllHaremsQuery()
@@ -104,8 +104,8 @@ export default function Dashboard() {
         >
           {isMobile ? (
             <MobileUserHarems
-              currentMobileUserHarem={currentMobileUserHarem || userHarems?.[0]}
-              setCurrentMobileUserHarem={setCurrentMobileUserHarem}
+              currentMobileUserHaremId={currentMobileUserHaremId}
+              setCurrentMobileUserHaremId={setCurrentMobileUserHaremId}
               userHarems={userHarems}
               setCurrentUserHarem={setCurrentUserHarem}
               editHaremsMode={editHaremsMode}

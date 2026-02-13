@@ -6,7 +6,11 @@ import SimpleForm from '@/components/shared-components'
 import { useAuth } from '@/contexts/auth-context'
 import { useSnackbar } from '@/hooks'
 import { useLoginMutation } from '@/redux/services/unprotected'
-import type { User } from '@/types'
+
+interface LoginFormValues {
+  email: string
+  password: string
+}
 
 const UserLogin = () => {
   const { login } = useAuth()
@@ -15,41 +19,61 @@ const UserLogin = () => {
   const showSnackbar = useSnackbar()
   const [triggerLogin, { isLoading: isLoadingLogin }] = useLoginMutation()
 
-  const onSubmit: SubmitHandler<User> = async (user) => {
+  const onSubmit: SubmitHandler<LoginFormValues> = async (values) => {
     try {
-      const result = await triggerLogin(user).unwrap()
+      const result = await triggerLogin(values).unwrap()
 
       login(result.token)
       router.push('/dashboard')
     } catch (error) {
-      const typedErr = error as { data: { error: string } }
-      showSnackbar(typedErr.data.error || 'Failed to Login', {
+      const typedErr = error as { data?: { error?: string } }
+      showSnackbar(typedErr.data?.error || 'Failed to Login', {
         variant: 'error',
       })
     }
   }
 
   return (
-    <SimpleForm<User>
+    <SimpleForm<LoginFormValues>
       onSubmit={onSubmit}
       title='User Login'
+      subtitle='Sign in to access your account'
       inputs={[
-        { label: 'User Email', name: 'email', inputType: 'text' },
+        {
+          label: 'Email',
+          name: 'email',
+          inputType: 'text',
+          rules: {
+            required: 'Email is required',
+            pattern: {
+              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+              message: 'Invalid email address',
+            },
+          },
+        },
         {
           label: 'Password',
           name: 'password',
           inputType: 'password',
+          rules: {
+            required: 'Password is required',
+            minLength: {
+              value: 6,
+              message: 'Password must be at least 6 characters',
+            },
+          },
         },
       ]}
       actionButtonProps={{
         children: 'Login',
         variant: 'contained',
         loading: isLoadingLogin,
+        disabled: isLoadingLogin,
       }}
       defaultValues={{ email: '', password: '' }}
       linkProps={{
         href: '/create-user',
-        children: 'Create User',
+        children: "Don't have an account? Create one",
       }}
       showSnackbar={false}
     />

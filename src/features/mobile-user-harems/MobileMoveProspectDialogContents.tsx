@@ -1,5 +1,5 @@
-import { Box, Button, MenuItem, Select, Typography } from '@mui/material'
-import { useState } from 'react'
+import type { SubmitHandler } from 'react-hook-form'
+import SimpleForm from '@/components/shared-components'
 import type { Harem, Prospect } from '@/types'
 
 interface MobileMoveProspectDialogContentsProps {
@@ -13,6 +13,10 @@ interface MobileMoveProspectDialogContentsProps {
   setMoveMobileProspectMode: React.Dispatch<React.SetStateAction<boolean>>
 }
 
+interface MoveProspectFormValues {
+  targetHaremId: number
+}
+
 const MobileMoveProspectDialogContents = ({
   currentHaremId,
   handleMoveProspect,
@@ -20,69 +24,49 @@ const MobileMoveProspectDialogContents = ({
   userHarems,
   setMoveMobileProspectMode,
 }: MobileMoveProspectDialogContentsProps) => {
-  const [selectValue, setSelectValue] = useState(currentHaremId)
-
-  const localHandleMoveProspect = async () => {
-    await handleMoveProspect(selectValue, prospect.id)
+  const handleSubmit: SubmitHandler<MoveProspectFormValues> = async (
+    values,
+  ) => {
+    await handleMoveProspect(values.targetHaremId, prospect.id)
     setMoveMobileProspectMode(false)
-    setSelectValue(currentHaremId)
   }
 
   return (
-    <Box
-      sx={{
-        width: '100%',
-        maxWidth: '100%',
-        margin: '0',
+    <SimpleForm<MoveProspectFormValues>
+      onSubmit={handleSubmit}
+      defaultValues={{ targetHaremId: currentHaremId }}
+      title='Move Prospect'
+      subtitle={`Move ${prospect.name} to a different harem`}
+      inputs={[
+        {
+          name: 'targetHaremId',
+          label: 'Move to',
+          inputType: 'select',
+          options: userHarems.map((harem) => ({
+            value: harem.id,
+            label: `${harem.name}${harem.id === currentHaremId ? ' (Current)' : ''}`,
+            disabled: harem.id === currentHaremId,
+          })),
+          rules: {
+            validate: (value) =>
+              value !== currentHaremId || 'Please select a different harem',
+          },
+        },
+      ]}
+      fullWidth
+      secondaryButtonProps={{
+        children: 'Cancel',
+        onClick: () => setMoveMobileProspectMode(false),
       }}
-    >
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 2.5,
-          border: 'none',
-          borderColor: 'divider',
-          borderRadius: 0,
-          padding: 3,
-          backgroundColor: 'transparent',
-          boxShadow: 0,
-        }}
-      >
-        <Typography variant='h5' component='h2' fontWeight={600} mb={1}>
-          Move Prospect
-        </Typography>
-
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <Select
-            label='Move to...'
-            value={selectValue}
-            onChange={(evt) => setSelectValue(evt.target.value)}
-          >
-            {userHarems.map((userHarem) => (
-              <MenuItem key={userHarem.id} value={userHarem.id}>
-                {userHarem.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </Box>
-        <Box display='flex' justifyContent='space-between' gap={1}>
-          <Button
-            variant='outlined'
-            color='secondary'
-            onClick={() => {
-              setMoveMobileProspectMode(false)
-              setSelectValue(currentHaremId)
-            }}
-          >
-            Close
-          </Button>
-          <Button variant='contained' onClick={localHandleMoveProspect}>
-            Move Prospect
-          </Button>
-        </Box>
-      </Box>
-    </Box>
+      actionButtonProps={{
+        children: 'Move',
+      }}
+      showSnackbar
+      snackbarProps={{
+        successMessage: 'Moved Prospect Successfully',
+        failureMessage: 'Failed to move Prospect',
+      }}
+    />
   )
 }
 

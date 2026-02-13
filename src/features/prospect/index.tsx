@@ -2,11 +2,15 @@ import type { SubmitHandler } from 'react-hook-form'
 import SimpleForm from '@/components/shared-components'
 
 import { useCreateProspectMutation } from '@/redux/services'
-import type { Harem, Prospect } from '@/types'
+import type { Harem } from '@/types'
 
 interface NewProspectProps {
   handleCloseProspectDialog: () => void
   currentUserHarem?: Harem
+}
+
+interface NewProspectFormValues {
+  name: string
 }
 
 const NewProspect = ({
@@ -15,9 +19,11 @@ const NewProspect = ({
 }: NewProspectProps) => {
   const [triggerCreateProspect] = useCreateProspectMutation()
 
-  const handleCreateProspect: SubmitHandler<Prospect> = async (values) => {
+  const handleCreateProspect: SubmitHandler<NewProspectFormValues> = async (
+    values,
+  ) => {
     if (currentUserHarem?.id) {
-      triggerCreateProspect({
+      await triggerCreateProspect({
         name: values.name,
         haremId: currentUserHarem.id,
       }).unwrap()
@@ -27,23 +33,31 @@ const NewProspect = ({
   }
 
   return (
-    <SimpleForm<Prospect>
+    <SimpleForm<NewProspectFormValues>
       onSubmit={handleCreateProspect}
-      defaultValues={{ haremId: -1, name: '' }}
-      title={`New Prospect - ${currentUserHarem?.name}`}
+      defaultValues={{ name: '' }}
+      title='New Prospect'
+      subtitle={`Add a new prospect to ${currentUserHarem?.name || 'this harem'}`}
       inputs={[
         {
           name: 'name',
           label: 'Prospect Name',
           inputType: 'text',
+          rules: {
+            required: 'Prospect name is required',
+            minLength: {
+              value: 2,
+              message: 'Name must be at least 2 characters',
+            },
+          },
         },
       ]}
       fullWidth
       secondaryButtonProps={{
-        children: 'Close',
+        children: 'Cancel',
         onClick: handleCloseProspectDialog,
       }}
-      actionButtonProps={{ children: 'Create Prospect' }}
+      actionButtonProps={{ children: 'Create' }}
       showSnackbar
       snackbarProps={{
         successMessage: 'Successfully Created Prospect!',

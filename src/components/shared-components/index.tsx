@@ -3,8 +3,12 @@ import {
   Box,
   Button,
   type ButtonProps,
+  FormControl,
   IconButton,
   InputAdornment,
+  InputLabel,
+  MenuItem,
+  Select,
   TextField,
   Tooltip,
   type TooltipProps,
@@ -25,16 +29,29 @@ import {
 } from 'react-hook-form'
 import { useFocusableInput, useSnackbar } from '@/hooks'
 
+type BaseInput<T extends FieldValues> = {
+  label: string
+  name: Path<T>
+  tooltipProps?: Omit<TooltipProps, 'children'>
+  rules?: RegisterOptions<T, Path<T>>
+}
+
+type TextInput<T extends FieldValues> = BaseInput<T> & {
+  inputType: 'text' | 'password'
+}
+
+type SelectInput<T extends FieldValues> = BaseInput<T> & {
+  inputType: 'select'
+  options: { value: string | number; label: string; disabled?: boolean }[]
+}
+
+type FormInput<T extends FieldValues> = TextInput<T> | SelectInput<T>
+
 type SimpleFormPropsBase<T extends FieldValues> = {
   onSubmit: SubmitHandler<T>
   title: string
-  inputs: {
-    inputType: 'text' | 'password'
-    label: string
-    name: Path<T>
-    tooltipProps?: Omit<TooltipProps, 'children'>
-    rules?: RegisterOptions<T, Path<T>>
-  }[]
+  subtitle?: string
+  inputs: FormInput<T>[]
   actionButtonProps: ButtonProps
   secondaryButtonProps?: ButtonProps
   defaultValues?: DefaultValues<T>
@@ -60,6 +77,7 @@ type SimpleFormProps<T extends FieldValues> = SimpleFormPropsBase<T> &
 const SimpleForm = <T extends FieldValues>({
   onSubmit,
   title,
+  subtitle,
   inputs,
   actionButtonProps,
   secondaryButtonProps,
@@ -135,13 +153,22 @@ const SimpleForm = <T extends FieldValues>({
           boxShadow: fullWidth ? 0 : 1,
         }}
       >
-        <Typography variant='h5' component='h2' fontWeight={600} mb={1}>
-          {title}
-        </Typography>
+        {/* Header */}
+        <Box>
+          <Typography variant='h5' component='h2' fontWeight={600} gutterBottom>
+            {title}
+          </Typography>
+          {subtitle && (
+            <Typography variant='body2' color='text.secondary'>
+              {subtitle}
+            </Typography>
+          )}
+        </Box>
 
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           {inputs.map((input, idx) => {
             const isPasswordField = input.inputType === 'password'
+            const isSelectField = input.inputType === 'select'
             const fieldName = input.name as string
             const showPassword = passwordVisibility[fieldName] || false
 
@@ -153,10 +180,55 @@ const SimpleForm = <T extends FieldValues>({
                 rules={input.rules}
                 defaultValue={'' as FieldValues[string]}
                 render={({ field, fieldState: { error } }) => {
+                  // Select Field
+                  if (isSelectField) {
+                    const selectInput = input as SelectInput<T>
+                    const selectField = (
+                      <FormControl fullWidth error={!!error}>
+                        <InputLabel id={`${fieldName}-label`}>
+                          {input.label}
+                        </InputLabel>
+                        <Select
+                          {...field}
+                          labelId={`${fieldName}-label`}
+                          id={fieldName}
+                          label={input.label}
+                          value={field.value ?? ''}
+                        >
+                          {selectInput.options.map((option) => (
+                            <MenuItem
+                              key={option.value}
+                              value={option.value}
+                              disabled={option.disabled}
+                            >
+                              {option.label}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                        {error?.message && (
+                          <Typography
+                            variant='caption'
+                            color='error'
+                            sx={{ mt: 0.5, ml: 1.75 }}
+                          >
+                            {error.message}
+                          </Typography>
+                        )}
+                      </FormControl>
+                    )
+
+                    return input.tooltipProps ? (
+                      <Tooltip {...input.tooltipProps}>{selectField}</Tooltip>
+                    ) : (
+                      selectField
+                    )
+                  }
+
+                  // Text/Password Field
                   const textField = (
                     <TextField
                       {...field}
-                      value={field.value ?? ''} // Ensure value is never undefined
+                      value={field.value ?? ''}
                       type={
                         isPasswordField && !showPassword ? 'password' : 'text'
                       }
@@ -221,6 +293,7 @@ const SimpleForm = <T extends FieldValues>({
             <Button
               {...secondaryButtonProps}
               variant={secondaryButtonProps.variant || 'outlined'}
+              color={secondaryButtonProps.color || 'secondary'}
               sx={{ flex: 1, ...secondaryButtonProps.sx }}
             />
           )}
