@@ -8,8 +8,16 @@ import * as s3 from 'aws-cdk-lib/aws-s3'
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment'
 import type { Construct } from 'constructs'
 
+interface CassanovaFrontendStackProps extends cdk.StackProps {
+  CSN_CERTIFICATE_ARN: string
+}
+
 export class CassanovaFrontendStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(
+    scope: Construct,
+    id: string,
+    props: CassanovaFrontendStackProps,
+  ) {
     super(scope, id, props)
 
     const domainName = 'cassanova.net'
@@ -21,7 +29,7 @@ export class CassanovaFrontendStack extends cdk.Stack {
     const certificate = acm.Certificate.fromCertificateArn(
       this,
       'Certificate',
-      'arn:aws:acm:us-east-1:471507967541:certificate/fe68da86-6db3-41c0-a2d5-3da23e9c13d4',
+      props.CSN_CERTIFICATE_ARN,
     )
 
     const bucket = new s3.Bucket(this, 'CassanovaFrontendBucket', {

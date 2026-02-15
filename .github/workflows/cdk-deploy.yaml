@@ -16,7 +16,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Install CDK
         run: yarn global add aws-cdk
@@ -26,7 +26,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-          aws-region: 'us-east-1'
+          aws-region: "us-east-1"
 
       - name: Install frontend dependencies
         run: yarn install --frozen-lockfile
@@ -41,7 +41,8 @@ jobs:
           cdk deploy --require-approval=never;
         env:
           CDK_DEFAULT_ACCOUNT: ${{ vars.AWS_ACCOUNT_NUMBER }}
-          CDK_DEFAULT_REGION: 'us-east-1'
+          CDK_DEFAULT_REGION: "us-east-1"
+          CSN_CERTIFICATE_ARN: ${{ vars.CSN_CERTIFICATE_ARN }}
 
       - name: Deployment complete
         run: echo "✅ Frontend deployed successfully to cassanova.net"
