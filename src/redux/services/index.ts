@@ -20,7 +20,10 @@ export const cassanovaProtectedApi = createApi({
     validateToken: builder.query<void, void>({
       query: () => ({ url: 'validate-token', method: 'GET' }),
     }),
-    createProspect: builder.mutation<void, Pick<Prospect, 'name' | 'haremId'>>({
+    createProspect: builder.mutation<
+      void,
+      Pick<Prospect, 'name' | 'haremId' | 'notes'>
+    >({
       query: (body) => ({
         url: 'prospect',
         method: 'POST',

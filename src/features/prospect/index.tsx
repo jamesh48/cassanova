@@ -11,6 +11,7 @@ interface NewProspectProps {
 
 interface NewProspectFormValues {
   name: string
+  notes: string
 }
 
 const NewProspect = ({
@@ -28,6 +29,7 @@ const NewProspect = ({
         await triggerCreateProspect({
           name: values.name,
           haremId: currentUserHarem.id,
+          notes: values.notes,
         }).unwrap()
 
         handleCloseProspectDialog()
@@ -55,6 +57,14 @@ const NewProspect = ({
               message: 'Name must be at least 2 characters',
             },
           },
+        },
+        {
+          name: 'notes',
+          inputType: 'textarea',
+          label: 'Notes',
+          rows: 4,
+          maxRows: 8,
+          placeholder: 'Add any notes about this prospect...',
         },
       ]}
       fullWidth

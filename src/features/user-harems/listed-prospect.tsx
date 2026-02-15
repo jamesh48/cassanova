@@ -1,13 +1,8 @@
-import {
-  DragIndicator,
-  VisibilityOutlined,
-  Whatshot,
-  WhatshotOutlined,
-} from '@mui/icons-material'
-import { Box, Dialog, Divider, IconButton, Typography } from '@mui/material'
+import { Box, Dialog, Divider, Typography } from '@mui/material'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { useMemo, useState } from 'react'
+import ListedProspectActionBar from '@/features/prospect/ListedProspectActionBar'
 import ViewOrEditProspect from '@/features/view-or-edit-prospect'
 import { useSnackbar } from '@/hooks'
 import {
@@ -33,37 +28,15 @@ const ListedProspect = ({
   isDragging,
   prospectIndex,
 }: ListedProspectProps) => {
-  const [editListedProspectMode, setEditListedProspectMode] = useState(false)
+  const [viewProspectDetailMode, setViewProspectDetailMode] = useState(false)
   const showSnackbar = useSnackbar()
   const [isProspectDraggable, setIsProspectDraggable] = useState(false)
-  const [triggerMarkListedProspectHot] = useUpdateProspectMutation()
   const [triggerUpdateProspect] = useUpdateProspectMutation()
   const [triggerDeleteProspect] = useDeleteProspectMutation()
-
-  const handleMarkListedProspectHot = async (
-    updatedProspect: Prospect,
-    hotLead: boolean,
-  ) => {
-    try {
-      await triggerMarkListedProspectHot({
-        ...updatedProspect,
-        hotLead,
-      }).unwrap()
-      showSnackbar(`Marked Prospect as ${hotLead ? 'hot' : 'not hot'}`, {
-        variant: 'success',
-      })
-    } catch (_err) {
-      showSnackbar('Failed to Mark Prospect as Hot', { variant: 'error' })
-    }
-  }
 
   const handleUpdateListedProspect = async (updatedProspect: Prospect) => {
     try {
       await triggerUpdateProspect(updatedProspect).unwrap()
-      setEditListedProspectMode(false)
-      showSnackbar('Renamed Prospect Successfully', {
-        variant: 'success',
-      })
     } catch (_err) {
       showSnackbar('Failed to update Prospect', { variant: 'error' })
     }
@@ -75,22 +48,12 @@ const ListedProspect = ({
       showSnackbar('Deleted Prospect Successfully', {
         variant: 'success',
       })
-      setEditListedProspectMode(false)
+      setViewProspectDetailMode(false)
     } catch (_err) {
       showSnackbar('Failed to Delete Prospect', {
         variant: 'error',
       })
     }
-  }
-
-  const handleProspectMouseDown = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    setIsProspectDraggable(true)
-  }
-
-  const handleProspectMouseUp = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    setIsProspectDraggable(false)
   }
 
   const daysOnDashboard = useMemo(() => {
@@ -155,49 +118,14 @@ const ListedProspect = ({
           </Box>
 
           {/* Action icons */}
-          <Box display='flex' alignItems='center' gap={0.5}>
-            <IconButton
-              size='small'
-              onClick={() => setEditListedProspectMode(true)}
-            >
-              <VisibilityOutlined fontSize='small' />
-            </IconButton>
-
-            <IconButton
-              size='small'
-              onClick={() =>
-                handleMarkListedProspectHot(
-                  userHaremProspect,
-                  !userHaremProspect.hotLead,
-                )
-              }
-              color={userHaremProspect.hotLead ? 'error' : 'default'}
-            >
-              {userHaremProspect.hotLead ? (
-                <Whatshot fontSize='small' />
-              ) : (
-                <WhatshotOutlined fontSize='small' />
-              )}
-            </IconButton>
-
-            <Box
-              onMouseDown={handleProspectMouseDown}
-              onMouseUp={handleProspectMouseUp}
-              sx={{
-                cursor: isDragging ? 'grabbing' : 'grab',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '4px',
-                borderRadius: '4px',
-                '&:hover': {
-                  backgroundColor: 'action.hover',
-                },
-              }}
-            >
-              <DragIndicator fontSize='small' />
-            </Box>
-          </Box>
+          <ListedProspectActionBar
+            handleViewProspectDetailMode={() => setViewProspectDetailMode(true)}
+            prospect={userHaremProspect}
+            isDragging={isDragging}
+            handleSetIsProspectDraggable={(draggable: boolean) =>
+              setIsProspectDraggable(draggable)
+            }
+          />
         </Box>
         <Box display='flex' alignItems='center' justifyContent='center'>
           <Typography variant='caption'>
@@ -217,12 +145,12 @@ const ListedProspect = ({
           </Typography>
         </Box>
       </Box>
-      <Dialog open={editListedProspectMode} maxWidth='sm' fullWidth>
+      <Dialog open={viewProspectDetailMode} maxWidth='sm' fullWidth>
         <ViewOrEditProspect
           defaultValues={userHaremProspect}
           onDelete={handleDeleteListedProspect}
           onUpdate={handleUpdateListedProspect}
-          handleClose={() => setEditListedProspectMode(false)}
+          handleClose={() => setViewProspectDetailMode(false)}
         />
       </Dialog>
     </>
