@@ -219,7 +219,7 @@ const ViewOrEditProspect = ({
           children: (
             <>
               <Save sx={{ mr: 1 }} />
-              Save Edits
+              Save
             </>
           ),
         }}

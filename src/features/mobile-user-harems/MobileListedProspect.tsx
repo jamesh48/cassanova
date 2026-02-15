@@ -1,24 +1,16 @@
 import {
-  Check,
-  DeleteForeverOutlined,
-  EditOutlined,
   MoveDown,
+  VisibilityOutlined,
   Whatshot,
   WhatshotOutlined,
 } from '@mui/icons-material'
-import {
-  Box,
-  Dialog,
-  Divider,
-  IconButton,
-  TextField,
-  Typography,
-} from '@mui/material'
+import { Box, Dialog, Divider, IconButton, Typography } from '@mui/material'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { useMemo, useState } from 'react'
 import MobileMoveProspectDialogContents from '@/features/mobile-user-harems/MobileMoveProspectDialogContents'
-import { useFocusableInput, useSnackbar } from '@/hooks'
+import ViewOrEditProspect from '@/features/view-or-edit-prospect'
+import { useSnackbar } from '@/hooks'
 import {
   useDeleteProspectMutation,
   useUpdateProspectMutation,
@@ -46,13 +38,10 @@ const MobileListedProspect = ({
   const showSnackbar = useSnackbar()
   const [moveMobileProspectMode, setMoveMobileProspectMode] = useState(false)
   const [editListedProspectMode, setEditListedProspectMode] = useState(false)
-  const [editListedProspectValue, setEditListedProspectValue] = useState(
-    userHaremProspect.name,
-  )
+
   const [triggerMarkListedProspectHot] = useUpdateProspectMutation()
   const [triggerUpdateProspect] = useUpdateProspectMutation()
   const [triggerDeleteProspect] = useDeleteProspectMutation()
-  const { setInputRef } = useFocusableInput(editListedProspectMode)
 
   const handleMarkListedProspectHot = async (
     updatedProspect: Prospect,
@@ -71,12 +60,9 @@ const MobileListedProspect = ({
     }
   }
 
-  const handleUpdateListedProspectName = async (updatedProspect: Prospect) => {
+  const handleUpdateListedProspect = async (updatedProspect: Prospect) => {
     try {
-      await triggerUpdateProspect({
-        ...updatedProspect,
-        name: editListedProspectValue,
-      }).unwrap()
+      await triggerUpdateProspect(updatedProspect).unwrap()
       setEditListedProspectMode(false)
       showSnackbar('Renamed Prospect Successfully', {
         variant: 'success',
@@ -117,49 +103,26 @@ const MobileListedProspect = ({
   }, [userHaremProspect.timeInCurrentHarem])
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 0.5,
-        padding: '8px',
-        borderRadius: '8px',
-        backgroundColor: 'background.paper',
-        border: '1px solid',
-        borderColor: 'divider',
-        transition: 'all 0.2s ease',
-        '&:hover': {
-          backgroundColor: 'action.hover',
-          borderColor: 'primary.light',
-        },
-      }}
-    >
-      {/* Main content row */}
-      <Box display='flex' justifyContent='space-between' alignItems='center'>
-        {editListedProspectMode ? (
-          <Box display='flex' alignItems='center' gap={1} flex={1}>
-            <IconButton
-              size='small'
-              color='error'
-              onClick={handleDeleteListedProspect}
-            >
-              <DeleteForeverOutlined fontSize='small' />
-            </IconButton>
-            <TextField
-              size='small'
-              fullWidth
-              slotProps={{ htmlInput: { style: { padding: '.25rem' } } }}
-              onChange={(evt) => setEditListedProspectValue(evt.target.value)}
-              value={editListedProspectValue}
-              inputRef={setInputRef}
-              onKeyDown={(evt) => {
-                if (evt.key === 'Enter') {
-                  handleUpdateListedProspectName(userHaremProspect)
-                }
-              }}
-            />
-          </Box>
-        ) : (
+    <>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 0.5,
+          padding: '8px',
+          borderRadius: '8px',
+          backgroundColor: 'background.paper',
+          border: '1px solid',
+          borderColor: 'divider',
+          transition: 'all 0.2s ease',
+          '&:hover': {
+            backgroundColor: 'action.hover',
+            borderColor: 'primary.light',
+          },
+        }}
+      >
+        {/* Main content row */}
+        <Box display='flex' justifyContent='space-between' alignItems='center'>
           <Box display='flex' alignItems='center' gap={1} flex={1}>
             <Typography
               variant='body1'
@@ -172,77 +135,68 @@ const MobileListedProspect = ({
               {userHaremProspect.name}
             </Typography>
           </Box>
-        )}
-        {/* Action icons */}
-        <Box display='flex' alignItems='center' gap={0.5}>
-          {editListedProspectMode ? (
-            <IconButton
-              size='small'
-              color='success'
-              onClick={() => handleUpdateListedProspectName(userHaremProspect)}
-            >
-              <Check fontSize='small' />
-            </IconButton>
-          ) : (
+
+          {/* Action icons */}
+          <Box display='flex' alignItems='center' gap={0.5}>
             <IconButton
               size='small'
               onClick={() => setEditListedProspectMode(true)}
             >
-              <EditOutlined fontSize='small' />
+              <VisibilityOutlined fontSize='small' />
             </IconButton>
-          )}
 
-          <IconButton
-            size='small'
-            onClick={() =>
-              handleMarkListedProspectHot(
-                userHaremProspect,
-                !userHaremProspect.hotLead,
-              )
-            }
-            color={userHaremProspect.hotLead ? 'error' : 'default'}
-          >
-            {userHaremProspect.hotLead ? (
-              <Whatshot fontSize='small' />
-            ) : (
-              <WhatshotOutlined fontSize='small' />
-            )}
-          </IconButton>
-
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '4px',
-              borderRadius: '4px',
-              '&:hover': {
-                backgroundColor: 'action.hover',
-              },
-            }}
-          >
-            <IconButton onClick={() => setMoveMobileProspectMode(true)}>
-              <MoveDown fontSize='small' />
+            <IconButton
+              size='small'
+              onClick={() =>
+                handleMarkListedProspectHot(
+                  userHaremProspect,
+                  !userHaremProspect.hotLead,
+                )
+              }
+              color={userHaremProspect.hotLead ? 'error' : 'default'}
+            >
+              {userHaremProspect.hotLead ? (
+                <Whatshot fontSize='small' />
+              ) : (
+                <WhatshotOutlined fontSize='small' />
+              )}
             </IconButton>
+
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '4px',
+                borderRadius: '4px',
+                '&:hover': {
+                  backgroundColor: 'action.hover',
+                },
+              }}
+            >
+              <IconButton onClick={() => setMoveMobileProspectMode(true)}>
+                <MoveDown fontSize='small' />
+              </IconButton>
+            </Box>
           </Box>
         </Box>
-      </Box>
-      <Box display='flex' alignItems='center' justifyContent='center'>
-        <Typography variant='caption'>
-          Days in Current Harem: {daysInCurrentHarem}
-        </Typography>
-        <Divider
-          orientation='vertical'
-          sx={{
-            borderWidth: '.5px',
-            height: '.75rem',
-            borderColor: 'darkgrey',
-            marginX: '1rem',
-          }}
-        />
-        <Typography variant='caption'>
-          Days on Dashboard: {daysOnDashboard}
-        </Typography>
+        <Box display='flex' alignItems='center' justifyContent='center'>
+          <Typography variant='caption'>
+            Days in Current Harem: {daysInCurrentHarem}
+          </Typography>
+          <Divider
+            orientation='vertical'
+            sx={{
+              borderWidth: '.5px',
+              height: '.75rem',
+              borderColor: 'darkgrey',
+              marginX: '1rem',
+            }}
+          />
+          <Typography variant='caption'>
+            Days on Dashboard: {daysOnDashboard}
+          </Typography>
+        </Box>
       </Box>
       <Dialog open={moveMobileProspectMode}>
         <MobileMoveProspectDialogContents
@@ -253,7 +207,15 @@ const MobileListedProspect = ({
           handleMoveProspect={handleMoveProspect}
         />
       </Dialog>
-    </Box>
+      <Dialog open={editListedProspectMode} maxWidth='sm' fullWidth>
+        <ViewOrEditProspect
+          defaultValues={userHaremProspect}
+          onDelete={handleDeleteListedProspect}
+          onUpdate={handleUpdateListedProspect}
+          handleClose={() => setEditListedProspectMode(false)}
+        />
+      </Dialog>
+    </>
   )
 }
 
