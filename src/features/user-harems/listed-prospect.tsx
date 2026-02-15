@@ -1,15 +1,14 @@
 import {
-  Check,
-  DeleteForeverOutlined,
   DragIndicator,
-  EditOutlined,
+  VisibilityOutlined,
   Whatshot,
   WhatshotOutlined,
 } from '@mui/icons-material'
-import { Box, Divider, IconButton, TextField, Typography } from '@mui/material'
+import { Box, Dialog, Divider, IconButton, Typography } from '@mui/material'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { useMemo, useState } from 'react'
+import ViewOrEditProspect from '@/features/view-or-edit-prospect'
 import { useSnackbar } from '@/hooks'
 import {
   useDeleteProspectMutation,
@@ -35,9 +34,6 @@ const ListedProspect = ({
   prospectIndex,
 }: ListedProspectProps) => {
   const [editListedProspectMode, setEditListedProspectMode] = useState(false)
-  const [editListedProspectValue, setEditListedProspectValue] = useState(
-    userHaremProspect.name,
-  )
   const showSnackbar = useSnackbar()
   const [isProspectDraggable, setIsProspectDraggable] = useState(false)
   const [triggerMarkListedProspectHot] = useUpdateProspectMutation()
@@ -61,25 +57,21 @@ const ListedProspect = ({
     }
   }
 
-  const handleUpdateListedProspectName = async (updatedProspect: Prospect) => {
+  const handleUpdateListedProspect = async (updatedProspect: Prospect) => {
     try {
-      await triggerUpdateProspect({
-        ...updatedProspect,
-        name: editListedProspectValue,
-      }).unwrap()
+      await triggerUpdateProspect(updatedProspect).unwrap()
       setEditListedProspectMode(false)
       showSnackbar('Renamed Prospect Successfully', {
         variant: 'success',
-        preventDuplicate: true,
       })
     } catch (_err) {
-      showSnackbar('Failed to rename Prospect', { variant: 'error' })
+      showSnackbar('Failed to update Prospect', { variant: 'error' })
     }
   }
 
-  const handleDeleteListedProspect = async () => {
+  const handleDeleteListedProspect = async (prospectId: number) => {
     try {
-      await triggerDeleteProspect({ id: userHaremProspect.id }).unwrap()
+      await triggerDeleteProspect({ id: prospectId }).unwrap()
       showSnackbar('Deleted Prospect Successfully', {
         variant: 'success',
       })
@@ -118,59 +110,37 @@ const ListedProspect = ({
   }, [userHaremProspect.timeInCurrentHarem])
 
   return (
-    <Box
-      draggable={isProspectDraggable}
-      onDragStart={(e) => {
-        e.stopPropagation()
-        onProspectDragStart(userHaremProspect.id, prospectIndex)
-      }}
-      onDragEnd={(e) => {
-        e.stopPropagation()
-        onProspectDragEnd()
-        setIsProspectDraggable(false)
-      }}
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 0.5,
-        padding: '8px',
-        borderRadius: '8px',
-        opacity: isDragging ? 0.5 : 1,
-        backgroundColor: isDragging ? 'action.selected' : 'background.paper',
-        border: '1px solid',
-        borderColor: isDragging ? 'primary.main' : 'divider',
-        transition: 'all 0.2s ease',
-        '&:hover': {
-          backgroundColor: isDragging ? 'action.selected' : 'action.hover',
-          borderColor: 'primary.light',
-        },
-      }}
-    >
-      {/* Main content row */}
-      <Box display='flex' justifyContent='space-between' alignItems='center'>
-        {editListedProspectMode ? (
-          <Box display='flex' alignItems='center' gap={1} flex={1}>
-            <IconButton
-              size='small'
-              color='error'
-              onClick={handleDeleteListedProspect}
-            >
-              <DeleteForeverOutlined fontSize='small' />
-            </IconButton>
-            <TextField
-              size='small'
-              fullWidth
-              slotProps={{ htmlInput: { style: { padding: '.25rem' } } }}
-              onChange={(evt) => setEditListedProspectValue(evt.target.value)}
-              value={editListedProspectValue}
-              onKeyDown={(evt) => {
-                if (evt.key === 'Enter') {
-                  handleUpdateListedProspectName(userHaremProspect)
-                }
-              }}
-            />
-          </Box>
-        ) : (
+    <>
+      <Box
+        draggable={isProspectDraggable}
+        onDragStart={(e) => {
+          e.stopPropagation()
+          onProspectDragStart(userHaremProspect.id, prospectIndex)
+        }}
+        onDragEnd={(e) => {
+          e.stopPropagation()
+          onProspectDragEnd()
+          setIsProspectDraggable(false)
+        }}
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 0.5,
+          padding: '.5rem',
+          borderRadius: '.5rem',
+          opacity: isDragging ? 0.5 : 1,
+          backgroundColor: isDragging ? 'action.selected' : 'background.paper',
+          border: '1px solid',
+          borderColor: isDragging ? 'primary.main' : 'divider',
+          transition: 'all 0.2s ease',
+          '&:hover': {
+            backgroundColor: isDragging ? 'action.selected' : 'action.hover',
+            borderColor: 'primary.light',
+          },
+        }}
+      >
+        {/* Main content row */}
+        <Box display='flex' justifyContent='space-between' alignItems='center'>
           <Box display='flex' alignItems='center' gap={1} flex={1}>
             <Typography
               variant='body1'
@@ -183,80 +153,79 @@ const ListedProspect = ({
               {userHaremProspect.name}
             </Typography>
           </Box>
-        )}
-        {/* Action icons */}
-        <Box display='flex' alignItems='center' gap={0.5}>
-          {editListedProspectMode ? (
-            <IconButton
-              size='small'
-              color='success'
-              onClick={() => handleUpdateListedProspectName(userHaremProspect)}
-            >
-              <Check fontSize='small' />
-            </IconButton>
-          ) : (
+
+          {/* Action icons */}
+          <Box display='flex' alignItems='center' gap={0.5}>
             <IconButton
               size='small'
               onClick={() => setEditListedProspectMode(true)}
             >
-              <EditOutlined fontSize='small' />
+              <VisibilityOutlined fontSize='small' />
             </IconButton>
-          )}
 
-          <IconButton
-            size='small'
-            onClick={() =>
-              handleMarkListedProspectHot(
-                userHaremProspect,
-                !userHaremProspect.hotLead,
-              )
-            }
-            color={userHaremProspect.hotLead ? 'error' : 'default'}
-          >
-            {userHaremProspect.hotLead ? (
-              <Whatshot fontSize='small' />
-            ) : (
-              <WhatshotOutlined fontSize='small' />
-            )}
-          </IconButton>
+            <IconButton
+              size='small'
+              onClick={() =>
+                handleMarkListedProspectHot(
+                  userHaremProspect,
+                  !userHaremProspect.hotLead,
+                )
+              }
+              color={userHaremProspect.hotLead ? 'error' : 'default'}
+            >
+              {userHaremProspect.hotLead ? (
+                <Whatshot fontSize='small' />
+              ) : (
+                <WhatshotOutlined fontSize='small' />
+              )}
+            </IconButton>
 
-          <Box
-            onMouseDown={handleProspectMouseDown}
-            onMouseUp={handleProspectMouseUp}
-            sx={{
-              cursor: isDragging ? 'grabbing' : 'grab',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '4px',
-              borderRadius: '4px',
-              '&:hover': {
-                backgroundColor: 'action.hover',
-              },
-            }}
-          >
-            <DragIndicator fontSize='small' />
+            <Box
+              onMouseDown={handleProspectMouseDown}
+              onMouseUp={handleProspectMouseUp}
+              sx={{
+                cursor: isDragging ? 'grabbing' : 'grab',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '4px',
+                borderRadius: '4px',
+                '&:hover': {
+                  backgroundColor: 'action.hover',
+                },
+              }}
+            >
+              <DragIndicator fontSize='small' />
+            </Box>
           </Box>
         </Box>
+        <Box display='flex' alignItems='center' justifyContent='center'>
+          <Typography variant='caption'>
+            Days in Current Harem: {daysInCurrentHarem}
+          </Typography>
+          <Divider
+            orientation='vertical'
+            sx={{
+              borderWidth: '.5px',
+              height: '.75rem',
+              borderColor: 'darkgrey',
+              marginX: '1rem',
+            }}
+          />
+          <Typography variant='caption'>
+            Days on Dashboard: {daysOnDashboard}
+          </Typography>
+        </Box>
       </Box>
-      <Box display='flex' alignItems='center' justifyContent='center'>
-        <Typography variant='caption'>
-          Days in Current Harem: {daysInCurrentHarem}
-        </Typography>
-        <Divider
-          orientation='vertical'
-          sx={{
-            borderWidth: '.5px',
-            height: '.75rem',
-            borderColor: 'darkgrey',
-            marginX: '1rem',
-          }}
+      <Dialog open={editListedProspectMode} maxWidth='sm' fullWidth>
+        <ViewOrEditProspect
+          defaultValues={userHaremProspect}
+          onDelete={handleDeleteListedProspect}
+          onUpdate={handleUpdateListedProspect}
+          handleClose={() => setEditListedProspectMode(false)}
         />
-        <Typography variant='caption'>
-          Days on Dashboard: {daysOnDashboard}
-        </Typography>
-      </Box>
-    </Box>
+      </Dialog>
+    </>
   )
 }
 

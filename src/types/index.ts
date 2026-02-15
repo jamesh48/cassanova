@@ -13,6 +13,7 @@ export interface Harem {
 export interface Prospect {
   id: number
   name: string
+  notes: string
   harem: number
   hotLead: boolean
   haremOrder: number
