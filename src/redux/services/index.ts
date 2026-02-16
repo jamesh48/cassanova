@@ -58,9 +58,9 @@ export const cassanovaProtectedApi = createApi({
       invalidatesTags: ['Harems'],
     }),
     updateProspect: builder.mutation<void, Prospect>({
-      query: (body) => ({
+      query: ({ id, ...body }) => ({
         method: 'PUT',
-        url: `prospects/${body.id}`,
+        url: `prospects/${id}`,
         body,
       }),
       invalidatesTags: ['Harems'],
@@ -97,9 +97,9 @@ export const cassanovaProtectedApi = createApi({
       invalidatesTags: ['Harems'],
     }),
     updateHarem: builder.mutation<void, Harem>({
-      query: (body) => ({
+      query: ({ id, ...body }) => ({
         method: 'PUT',
-        url: `user-harems/${body.id}`,
+        url: `user-harems/${id}`,
         body,
       }),
       invalidatesTags: ['Harems'],
