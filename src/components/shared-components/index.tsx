@@ -27,6 +27,7 @@ import {
   type SubmitHandler,
   useForm,
 } from 'react-hook-form'
+import TextAreaField from '@/components/shared-components/TextAreaField'
 import { useFocusableInput, useSnackbar } from '@/hooks'
 import DeleteConfirmationDialog from './DeleteConfirmationDialog'
 
@@ -48,6 +49,15 @@ type TextAreaInput<T extends FieldValues> = BaseInput<T> & {
   placeholder?: string
 }
 
+type DeleteButtonProps = {
+  onClick: () => void
+  disabled?: boolean
+  startIcon?: React.ReactNode
+  children?: React.ReactNode
+  confirmationTitle?: string
+  confirmationMessage?: string
+}
+
 type SelectInput<T extends FieldValues> = BaseInput<T> & {
   inputType: 'select'
   options: { value: string | number; label: string; disabled?: boolean }[]
@@ -65,11 +75,7 @@ type SimpleFormPropsBase<T extends FieldValues> = {
   inputs: FormInput<T>[]
   actionButtonProps: ButtonProps
   secondaryButtonProps?: ButtonProps
-  deleteButtonProps?: {
-    onDelete: () => void | Promise<void>
-    confirmationTitle?: string
-    confirmationMessage?: string
-  } & Omit<ButtonProps, 'onClick'>
+  deleteButtonProps?: DeleteButtonProps
   defaultValues?: DefaultValues<T>
   linkProps?: LinkProps & { children: ReactNode }
   fullWidth?: boolean
@@ -150,9 +156,9 @@ const SimpleForm = <T extends FieldValues>({
   }
 
   const handleDeleteConfirm = async () => {
-    if (deleteButtonProps?.onDelete) {
+    if (deleteButtonProps?.onClick) {
       try {
-        await deleteButtonProps.onDelete()
+        await deleteButtonProps.onClick()
         setDeleteDialogOpen(false)
       } catch (_err) {
         revealSnackbar('Failed to delete', { variant: 'error' })
@@ -272,20 +278,20 @@ const SimpleForm = <T extends FieldValues>({
                     if (isTextAreaField) {
                       const textAreaInput = input as TextAreaInput<T>
                       const textAreaField = (
-                        <TextField
-                          {...field}
+                        <TextAreaField
                           value={field.value ?? ''}
-                          inputRef={idx === 0 ? setInputRef : null}
+                          onChange={field.onChange}
+                          onSubmit={handleSubmit(
+                            handleLocalOnSubmitSuccess,
+                            handleLocalOnSubmitFailure,
+                          )}
                           label={input.label}
                           placeholder={textAreaInput.placeholder}
-                          variant='outlined'
-                          fullWidth
-                          multiline
                           rows={textAreaInput.rows || 4}
                           maxRows={textAreaInput.maxRows || 8}
-                          size='medium'
                           error={!!error}
                           helperText={error?.message}
+                          inputRef={idx === 0 ? setInputRef : null}
                         />
                       )
 
@@ -297,7 +303,6 @@ const SimpleForm = <T extends FieldValues>({
                         textAreaField
                       )
                     }
-
                     // Text/Password Field
                     const textField = (
                       <TextField
@@ -369,6 +374,7 @@ const SimpleForm = <T extends FieldValues>({
                 variant={secondaryButtonProps.variant || 'outlined'}
                 color={secondaryButtonProps.color || 'secondary'}
                 sx={{ flex: 1, ...secondaryButtonProps.sx }}
+                tabIndex={-1}
               />
             )}
 
@@ -386,17 +392,10 @@ const SimpleForm = <T extends FieldValues>({
                 fullWidth
                 variant='outlined'
                 color='error'
+                tabIndex={-1}
                 onClick={handleDeleteClick}
-                {...deleteButtonProps}
-                sx={{
-                  borderStyle: 'dashed',
-                  '&:hover': {
-                    borderStyle: 'dashed',
-                    backgroundColor: 'error.light',
-                    color: 'error.contrastText',
-                  },
-                  ...deleteButtonProps.sx,
-                }}
+                disabled={deleteButtonProps.disabled}
+                startIcon={deleteButtonProps.startIcon}
               >
                 {deleteButtonProps.children || 'Delete'}
               </Button>

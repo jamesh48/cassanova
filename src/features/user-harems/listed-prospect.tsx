@@ -1,4 +1,5 @@
-import { Box, Dialog, Divider, Typography } from '@mui/material'
+import { InfoOutline } from '@mui/icons-material'
+import { Box, Dialog, Divider, Tooltip, Typography } from '@mui/material'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { useMemo, useState } from 'react'
@@ -115,6 +116,34 @@ const ListedProspect = ({
             >
               {userHaremProspect.name}
             </Typography>
+            {userHaremProspect.notes.length ? (
+              <Tooltip
+                title={
+                  <Box
+                    padding='.5rem'
+                    display='flex'
+                    justifyContent='flex-start'
+                    flexDirection='column'
+                    rowGap={0.5}
+                    minWidth='15rem'
+                  >
+                    <Typography
+                      sx={{
+                        textDecoration: 'underline',
+                        textUnderlineOffset: '.25rem',
+                      }}
+                    >
+                      Notes
+                    </Typography>
+                    <Typography variant='caption'>
+                      {userHaremProspect.notes}
+                    </Typography>
+                  </Box>
+                }
+              >
+                <InfoOutline fontSize='inherit' sx={{ cursor: 'help' }} />
+              </Tooltip>
+            ) : null}
           </Box>
 
           {/* Action icons */}

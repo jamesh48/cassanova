@@ -230,7 +230,7 @@ const ViewOrEditProspect = ({
               Delete Prospect
             </>
           ),
-          onDelete: async () => {
+          onClick: async () => {
             await onDelete(defaultValues.id)
             handleClose()
           },
