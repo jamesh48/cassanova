@@ -26,8 +26,8 @@ const CreateUser = () => {
   ) => {
     try {
       const result = await triggerCreateUser({
-        email: values.email,
-        password: values.password,
+        email: values.email.trim(),
+        password: values.password.trim(),
       }).unwrap()
 
       login(result.token)
