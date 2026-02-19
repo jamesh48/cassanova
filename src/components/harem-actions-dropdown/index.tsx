@@ -9,6 +9,7 @@ import {
   MenuItem,
 } from '@mui/material'
 import { type MouseEvent, useState } from 'react'
+import { useGetCurrentUserQuery } from '@/redux/services'
 
 interface HaremActionsDropdownProps {
   onNewHarem: () => void
@@ -25,6 +26,8 @@ export default function HaremActionsDropdown({
 }: HaremActionsDropdownProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
+
+  const { data: currentUser } = useGetCurrentUserQuery()
 
   const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget)
@@ -65,6 +68,7 @@ export default function HaremActionsDropdown({
           horizontal: 'right',
         }}
       >
+        <MenuItem disabled>{currentUser?.email || '---'}</MenuItem>
         <MenuItem onClick={() => handleMenuItemClick(onNewHarem)}>
           <ListItemIcon>
             <Add fontSize='small' />

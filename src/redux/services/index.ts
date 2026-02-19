@@ -1,11 +1,11 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import type { Harem, Prospect } from '@/types'
+import type { Harem, Prospect, User } from '@/types'
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3030/api/'
 
 export const cassanovaProtectedApi = createApi({
   reducerPath: 'protectedApi',
-  tagTypes: ['Prospects', 'Harems'],
+  tagTypes: ['Prospects', 'Harems', 'User'],
   baseQuery: fetchBaseQuery({
     baseUrl,
     prepareHeaders: (headers) => {
@@ -104,6 +104,14 @@ export const cassanovaProtectedApi = createApi({
       }),
       invalidatesTags: ['Harems'],
     }),
+
+    getCurrentUser: builder.query<User, void>({
+      query: () => ({
+        method: 'GET',
+        url: 'user',
+      }),
+      providesTags: ['User'],
+    }),
   }),
 })
 
@@ -122,4 +130,6 @@ export const {
   useUpdateProspectMutation,
   // Token
   useLazyValidateTokenQuery,
+  // User
+  useGetCurrentUserQuery,
 } = cassanovaProtectedApi
