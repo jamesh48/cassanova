@@ -21,7 +21,11 @@ const UserLogin = () => {
 
   const onSubmit: SubmitHandler<LoginFormValues> = async (values) => {
     try {
-      const result = await triggerLogin(values).unwrap()
+      const result = await triggerLogin({
+        ...values,
+        email: values.email.trim(),
+        password: values.password.trim(),
+      }).unwrap()
 
       login(result.token)
       router.push('/dashboard')
