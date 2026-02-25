@@ -22,7 +22,7 @@ export const cassanovaProtectedApi = createApi({
     }),
     createProspect: builder.mutation<
       void,
-      Pick<Prospect, 'name' | 'haremId' | 'notes'>
+      Pick<Prospect, 'name' | 'haremId' | 'notes' | 'age' | 'occupation'>
     >({
       query: (body) => ({
         url: 'prospect',

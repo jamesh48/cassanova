@@ -1,8 +1,8 @@
 import type { SubmitHandler } from 'react-hook-form'
+import * as yup from 'yup'
 import SimpleForm from '@/components/shared-components'
-
 import { useCreateProspectMutation } from '@/redux/services'
-import type { Harem } from '@/types'
+import type { Harem, Prospect } from '@/types'
 
 interface NewProspectProps {
   handleCloseProspectDialog: () => void
@@ -12,6 +12,8 @@ interface NewProspectProps {
 interface NewProspectFormValues {
   name: string
   notes: string
+  age: number
+  occupation: string
 }
 
 const NewProspect = ({
@@ -30,6 +32,8 @@ const NewProspect = ({
           name: values.name,
           haremId: currentUserHarem.id,
           notes: values.notes,
+          age: values.age,
+          occupation: values.occupation,
         }).unwrap()
 
         handleCloseProspectDialog()
@@ -59,6 +63,22 @@ const NewProspect = ({
           },
         },
         {
+          name: 'age',
+          label: 'Prospect Age',
+          inputType: 'text',
+          rules: {
+            required: false,
+          },
+        },
+        {
+          name: 'occupation',
+          label: 'Prospect Occupation',
+          inputType: 'text',
+          rules: {
+            required: false,
+          },
+        },
+        {
           name: 'notes',
           inputType: 'textarea',
           label: 'Notes',
@@ -67,6 +87,16 @@ const NewProspect = ({
           placeholder: 'Add any notes about this prospect...',
         },
       ]}
+      schema={yup.object<Prospect>({
+        name: yup.string().required('Name is Required'),
+        age: yup
+          .number()
+          .typeError('Must be a number')
+          .min(18, 'This app is for adults')
+          .optional(),
+        occupation: yup.string().optional(),
+        notes: yup.string().optional(),
+      })}
       fullWidth
       secondaryButtonProps={{
         children: 'Cancel',

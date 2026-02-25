@@ -7,7 +7,8 @@ import {
   Stack,
   Typography,
 } from '@mui/material'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import * as yup from 'yup'
 import SimpleForm from '@/components/shared-components'
 import DeleteConfirmationDialog from '@/components/shared-components/DeleteConfirmationDialog'
 import type { Prospect } from '@/types'
@@ -46,6 +47,10 @@ const ViewOrEditProspect = ({
     await onUpdate(prospect)
     setIsEditMode(false)
   }
+
+  const prospectValues = useMemo(() => {
+    return defaultValues
+  }, [defaultValues])
 
   // View Mode
   if (!isEditMode) {
@@ -101,23 +106,65 @@ const ViewOrEditProspect = ({
           <Divider sx={{ mb: 3 }} />
 
           {/* Name Field */}
-          <Box sx={{ mb: 3 }}>
-            <Typography
-              variant='caption'
-              color='text.secondary'
-              sx={{
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                letterSpacing: 0.5,
-              }}
-            >
-              Name
-            </Typography>
-            <Typography variant='body1' sx={{ mt: 0.5, fontSize: '1.1rem' }}>
-              {defaultValues.name || (
-                <em style={{ color: 'text.secondary' }}>No name</em>
-              )}
-            </Typography>
+          <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-start' }}>
+            <Box flex='1'>
+              <Typography
+                variant='caption'
+                color='text.secondary'
+                sx={{
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: 0.5,
+                }}
+              >
+                Name
+              </Typography>
+              <Typography variant='body1' sx={{ mt: 0.5, fontSize: '1.1rem' }}>
+                {prospectValues.name || (
+                  <em style={{ color: 'text.secondary' }}>No name</em>
+                )}
+              </Typography>
+            </Box>
+          </Box>
+
+          <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-start' }}>
+            <Box flex='1'>
+              <Typography
+                variant='caption'
+                color='text.secondary'
+                sx={{
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: 0.5,
+                }}
+              >
+                Age
+              </Typography>
+              <Typography variant='body1' sx={{ mt: 0.5, fontSize: '1.1rem' }}>
+                {prospectValues.age || (
+                  <em style={{ color: 'text.secondary' }}>---</em>
+                )}
+              </Typography>
+            </Box>
+            <Box flex='1'>
+              {' '}
+              <Typography
+                variant='caption'
+                color='text.secondary'
+                sx={{
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: 0.5,
+                }}
+              >
+                Occupation
+              </Typography>
+              <Typography variant='body1' sx={{ mt: 0.5, fontSize: '1.1rem' }}>
+                {prospectValues.occupation || (
+                  <em style={{ color: 'text.secondary' }}>---</em>
+                )}
+              </Typography>
+            </Box>
           </Box>
 
           {/* Notes Field */}
@@ -138,11 +185,11 @@ const ViewOrEditProspect = ({
               sx={{
                 mt: 0.5,
                 whiteSpace: 'pre-wrap',
-                color: defaultValues.notes ? 'text.primary' : 'text.secondary',
-                fontStyle: defaultValues.notes ? 'normal' : 'italic',
+                color: prospectValues.notes ? 'text.primary' : 'text.secondary',
+                fontStyle: prospectValues.notes ? 'normal' : 'italic',
               }}
             >
-              {defaultValues.notes || 'No notes added'}
+              {prospectValues.notes || 'No notes added'}
             </Typography>
           </Box>
 
@@ -180,7 +227,7 @@ const ViewOrEditProspect = ({
         <DeleteConfirmationDialog
           handleDeleteConfirm={handleDeleteConfirm}
           handleDeleteCancel={handleDeleteCancel}
-          confirmationMessage={`Are you sure you want to delete ${defaultValues.name}? This action cannot be
+          confirmationMessage={`Are you sure you want to delete ${prospectValues.name}? This action cannot be
           undone.`}
           confirmationTitle='Delete Prospect?'
           deleteDialogOpen={deleteDialogOpen}
@@ -203,6 +250,20 @@ const ViewOrEditProspect = ({
             rules: { required: 'Name is required' },
           },
           {
+            name: 'age',
+            inputType: 'text',
+            label: 'Prospect Age',
+            rules: { required: false },
+          },
+          {
+            name: 'occupation',
+            label: 'Prospect Occupation',
+            inputType: 'text',
+            rules: {
+              required: false,
+            },
+          },
+          {
             name: 'notes',
             inputType: 'textarea',
             label: 'Notes',
@@ -211,6 +272,16 @@ const ViewOrEditProspect = ({
             placeholder: 'Add any notes about this prospect...',
           },
         ]}
+        schema={yup.object<Prospect>({
+          name: yup.string().required('Name is Required'),
+          age: yup
+            .number()
+            .typeError('Must be a number')
+            .min(18, 'This app is for adults')
+            .optional(),
+          occupation: yup.string().optional(),
+          notes: yup.string().optional(),
+        })}
         secondaryButtonProps={{
           children: 'Cancel Edits',
           onClick: () => setIsEditMode(false),
@@ -231,13 +302,13 @@ const ViewOrEditProspect = ({
             </>
           ),
           onClick: async () => {
-            await onDelete(defaultValues.id)
+            await onDelete(prospectValues.id)
             handleClose()
           },
           confirmationTitle: 'Delete Prospect?',
-          confirmationMessage: `Are you sure you want to delete ${defaultValues.name}? This action cannot be undone.`,
+          confirmationMessage: `Are you sure you want to delete ${prospectValues.name}? This action cannot be undone.`,
         }}
-        defaultValues={defaultValues}
+        defaultValues={prospectValues}
         fullWidth
         snackbarProps={{
           successMessage: 'Prospect updated successfully',

@@ -1,3 +1,4 @@
+import { yupResolver } from '@hookform/resolvers/yup'
 import { Visibility, VisibilityOff } from '@mui/icons-material'
 import {
   Box,
@@ -15,7 +16,6 @@ import {
   Typography,
 } from '@mui/material'
 import Link, { type LinkProps } from 'next/link'
-
 import { type ReactNode, useState } from 'react'
 import {
   Controller,
@@ -27,6 +27,7 @@ import {
   type SubmitHandler,
   useForm,
 } from 'react-hook-form'
+import type * as yup from 'yup'
 import TextAreaField from '@/components/shared-components/TextAreaField'
 import { useFocusableInput, useSnackbar } from '@/hooks'
 import DeleteConfirmationDialog from './DeleteConfirmationDialog'
@@ -79,6 +80,8 @@ type SimpleFormPropsBase<T extends FieldValues> = {
   defaultValues?: DefaultValues<T>
   linkProps?: LinkProps & { children: ReactNode }
   fullWidth?: boolean
+  schema?: yup.AnyObjectSchema
+  mode?: 'onBlur' | 'onChange' | 'onSubmit' | 'onTouched' | 'all'
 }
 
 type SimpleFormProps<T extends FieldValues> = SimpleFormPropsBase<T> &
@@ -112,9 +115,15 @@ const SimpleForm = <T extends FieldValues>({
     failureMessage: 'Something went wrong',
   },
   fullWidth = false,
+  schema,
+  mode,
 }: SimpleFormProps<T>) => {
   const revealSnackbar = useSnackbar()
-  const { handleSubmit, control, reset } = useForm<T>({ defaultValues })
+  const { handleSubmit, control, reset } = useForm<T>({
+    defaultValues,
+    mode: mode || 'all',
+    ...(schema && { resolver: yupResolver(schema) }),
+  })
   const { setInputRef } = useFocusableInput(true)
 
   const [passwordVisibility, setPasswordVisibility] = useState<
@@ -318,8 +327,8 @@ const SimpleForm = <T extends FieldValues>({
                         size='medium'
                         error={!!error}
                         helperText={error?.message}
-                        InputProps={
-                          isPasswordField
+                        slotProps={{
+                          input: isPasswordField
                             ? {
                                 endAdornment: (
                                   <InputAdornment position='end'>
@@ -345,8 +354,8 @@ const SimpleForm = <T extends FieldValues>({
                                   </InputAdornment>
                                 ),
                               }
-                            : undefined
-                        }
+                            : undefined,
+                        }}
                       />
                     )
 

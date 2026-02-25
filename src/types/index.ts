@@ -13,11 +13,13 @@ export interface Harem {
 export interface Prospect {
   id: number
   name: string
-  notes: string
   harem: number
   hotLead: boolean
   haremOrder: number
   timeInCurrentHarem: string
+  age: number
+  occupation: string
+  notes: string
   createdAt: string
   updatedAt: string
   /* For Local Consumption */
