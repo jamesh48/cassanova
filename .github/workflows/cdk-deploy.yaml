@@ -2,7 +2,7 @@ name: Deploy Cassanova Frontend
 
 on:
   push:
-    branches: [main]
+    # branches: [main]
   pull_request:
     branches: [main]
 
