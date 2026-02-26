@@ -8,10 +8,12 @@ import {
   Typography,
 } from '@mui/material'
 import { useMemo, useState } from 'react'
-
+import LocationMap from '@/components/location-map'
 import DeleteConfirmationDialog from '@/components/shared-components/DeleteConfirmationDialog'
 import CreateOrEditProspectForm from '@/features/prospect/CreateOrEditProspectForm'
 import ViewProspectDetail from '@/features/view-or-edit-prospect/ViewProspectDetail'
+import { useLocationDistance } from '@/hooks'
+import { useGetCurrentUserQuery } from '@/redux/services'
 import type { Prospect } from '@/types'
 
 interface ViewOrEditProspectProps {
@@ -29,6 +31,8 @@ const ViewOrEditProspect = ({
   onUpdate,
   isLoadingUpdateProspect,
 }: ViewOrEditProspectProps) => {
+  const { data: currentUser } = useGetCurrentUserQuery()
+
   const [isEditMode, setIsEditMode] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
@@ -67,6 +71,19 @@ const ViewOrEditProspect = ({
       age: defaultValues.age === null ? '' : defaultValues.age,
     }
   }, [defaultValues])
+
+  const { distanceMiles } = useLocationDistance(
+    prospectValues.location,
+    currentUser?.userLocation,
+  )
+
+  const mileageLabel = useMemo(() => {
+    const miles = distanceMiles?.toFixed(1)
+    if (miles) {
+      return `${prospectValues.location} - ${miles} Miles Away`
+    }
+    return prospectValues.location
+  }, [prospectValues.location, distanceMiles])
 
   // View Mode
   if (!isEditMode) {
@@ -136,10 +153,21 @@ const ViewOrEditProspect = ({
               value={prospectValues.occupation}
             />
           </Box>
-          <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-start' }}>
+          <Box
+            sx={{
+              mb: 3,
+              display: 'flex',
+              justifyContent: 'flex-start',
+              flexDirection: 'column',
+            }}
+          >
             <ViewProspectDetail
-              label='Location'
-              value={prospectValues.location}
+              label='Prospect Location'
+              value={mileageLabel}
+            />
+            <LocationMap
+              location={prospectValues.location}
+              userLocation={currentUser?.userLocation}
             />
           </Box>
 

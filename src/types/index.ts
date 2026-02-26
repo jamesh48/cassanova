@@ -1,6 +1,7 @@
 export interface User {
   email: string
   password: string
+  userLocation: string
 }
 
 export interface Harem {

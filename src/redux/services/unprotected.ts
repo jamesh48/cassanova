@@ -8,14 +8,16 @@ export const cassanovaUnprotectedApi = createApi({
   tagTypes: [],
   baseQuery: fetchBaseQuery({ baseUrl }),
   endpoints: (builder) => ({
-    createUser: builder.mutation<{ token: string }, User>({
-      query: (body) => ({
-        url: 'user',
-        method: 'POST',
-        body,
-      }),
-    }),
-    login: builder.mutation<{ token: string }, User>({
+    createUser: builder.mutation<{ token: string }, Omit<User, 'userLocation'>>(
+      {
+        query: (body) => ({
+          url: 'user',
+          method: 'POST',
+          body,
+        }),
+      },
+    ),
+    login: builder.mutation<{ token: string }, Omit<User, 'userLocation'>>({
       query: (body) => ({
         url: 'login',
         method: 'POST',

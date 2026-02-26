@@ -16,7 +16,7 @@ import {
   Typography,
 } from '@mui/material'
 import Link, { type LinkProps } from 'next/link'
-import { type ReactNode, useState } from 'react'
+import { type ReactNode, useEffect, useState } from 'react'
 import {
   Controller,
   type DefaultValues,
@@ -37,6 +37,7 @@ type BaseInput<T extends FieldValues> = {
   name: Path<T>
   tooltipProps?: Omit<TooltipProps, 'children'>
   rules?: RegisterOptions<T, Path<T>>
+  renderAfter?: (value: unknown) => ReactNode
 }
 
 type TextInput<T extends FieldValues> = BaseInput<T> & {
@@ -124,6 +125,10 @@ const SimpleForm = <T extends FieldValues>({
     mode: mode || 'all',
     ...(schema && { resolver: yupResolver(schema) }),
   })
+  useEffect(() => {
+    reset(defaultValues)
+  }, [defaultValues, reset])
+
   const { setInputRef } = useFocusableInput(true)
 
   const [passwordVisibility, setPasswordVisibility] = useState<
@@ -239,6 +244,8 @@ const SimpleForm = <T extends FieldValues>({
                   rules={input.rules}
                   defaultValue={'' as FieldValues[string]}
                   render={({ field, fieldState: { error } }) => {
+                    let fieldNode: ReactNode
+
                     // Select Field
                     if (isSelectField) {
                       const selectInput = input as SelectInput<T>
@@ -275,16 +282,13 @@ const SimpleForm = <T extends FieldValues>({
                           )}
                         </FormControl>
                       )
-
-                      return input.tooltipProps ? (
+                      fieldNode = input.tooltipProps ? (
                         <Tooltip {...input.tooltipProps}>{selectField}</Tooltip>
                       ) : (
                         selectField
                       )
-                    }
-
-                    // TextArea Field
-                    if (isTextAreaField) {
+                    } else if (isTextAreaField) {
+                      // TextArea Field
                       const textAreaInput = input as TextAreaInput<T>
                       const textAreaField = (
                         <TextAreaField
@@ -303,66 +307,74 @@ const SimpleForm = <T extends FieldValues>({
                           inputRef={idx === 0 ? setInputRef : null}
                         />
                       )
-
-                      return input.tooltipProps ? (
+                      fieldNode = input.tooltipProps ? (
                         <Tooltip {...input.tooltipProps}>
                           {textAreaField}
                         </Tooltip>
                       ) : (
                         textAreaField
                       )
+                    } else {
+                      // Text/Password Field
+                      const textField = (
+                        <TextField
+                          {...field}
+                          value={field.value ?? ''}
+                          type={
+                            isPasswordField && !showPassword
+                              ? 'password'
+                              : 'text'
+                          }
+                          inputRef={idx === 0 ? setInputRef : null}
+                          label={input.label}
+                          variant='outlined'
+                          fullWidth
+                          size='medium'
+                          error={!!error}
+                          helperText={error?.message}
+                          slotProps={{
+                            input: isPasswordField
+                              ? {
+                                  endAdornment: (
+                                    <InputAdornment position='end'>
+                                      <IconButton
+                                        aria-label={
+                                          showPassword
+                                            ? 'hide password'
+                                            : 'show password'
+                                        }
+                                        onClick={() =>
+                                          togglePasswordVisibility(fieldName)
+                                        }
+                                        onMouseDown={(e) => e.preventDefault()}
+                                        edge='end'
+                                        size='small'
+                                      >
+                                        {showPassword ? (
+                                          <VisibilityOff />
+                                        ) : (
+                                          <Visibility />
+                                        )}
+                                      </IconButton>
+                                    </InputAdornment>
+                                  ),
+                                }
+                              : undefined,
+                          }}
+                        />
+                      )
+                      fieldNode = input.tooltipProps ? (
+                        <Tooltip {...input.tooltipProps}>{textField}</Tooltip>
+                      ) : (
+                        textField
+                      )
                     }
-                    // Text/Password Field
-                    const textField = (
-                      <TextField
-                        {...field}
-                        value={field.value ?? ''}
-                        type={
-                          isPasswordField && !showPassword ? 'password' : 'text'
-                        }
-                        inputRef={idx === 0 ? setInputRef : null}
-                        label={input.label}
-                        variant='outlined'
-                        fullWidth
-                        size='medium'
-                        error={!!error}
-                        helperText={error?.message}
-                        slotProps={{
-                          input: isPasswordField
-                            ? {
-                                endAdornment: (
-                                  <InputAdornment position='end'>
-                                    <IconButton
-                                      aria-label={
-                                        showPassword
-                                          ? 'hide password'
-                                          : 'show password'
-                                      }
-                                      onClick={() =>
-                                        togglePasswordVisibility(fieldName)
-                                      }
-                                      onMouseDown={(e) => e.preventDefault()}
-                                      edge='end'
-                                      size='small'
-                                    >
-                                      {showPassword ? (
-                                        <VisibilityOff />
-                                      ) : (
-                                        <Visibility />
-                                      )}
-                                    </IconButton>
-                                  </InputAdornment>
-                                ),
-                              }
-                            : undefined,
-                        }}
-                      />
-                    )
 
-                    return input.tooltipProps ? (
-                      <Tooltip {...input.tooltipProps}>{textField}</Tooltip>
-                    ) : (
-                      textField
+                    return (
+                      <>
+                        {fieldNode}
+                        {input.renderAfter?.(field.value)}
+                      </>
                     )
                   }}
                 />

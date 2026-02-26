@@ -101,7 +101,15 @@ export const cassanovaProtectedApi = createApi({
       }),
       invalidatesTags: ['Harems'],
     }),
-
+    // User
+    updateUser: builder.mutation<void, Pick<User, 'userLocation'>>({
+      query: (body) => ({
+        method: 'PATCH',
+        url: 'user',
+        body,
+      }),
+      invalidatesTags: ['User'],
+    }),
     getCurrentUser: builder.query<User, void>({
       query: () => ({
         method: 'GET',
@@ -128,5 +136,6 @@ export const {
   // Token
   useLazyValidateTokenQuery,
   // User
+  useUpdateUserMutation,
   useGetCurrentUserQuery,
 } = cassanovaProtectedApi

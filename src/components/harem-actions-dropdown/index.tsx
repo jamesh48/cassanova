@@ -1,6 +1,6 @@
 'use client'
 
-import { Add, Edit, ExpandMore, Logout } from '@mui/icons-material'
+import { Add, Edit, ExpandMore, Logout, Person4 } from '@mui/icons-material'
 import {
   Button,
   ListItemIcon,
@@ -14,6 +14,7 @@ import { useGetCurrentUserQuery } from '@/redux/services'
 interface HaremActionsDropdownProps {
   onNewHarem: () => void
   onEditHarems: () => void
+  onEditUserProfile: () => void
   onLogout: () => void
   editHaremsMode?: boolean
 }
@@ -22,6 +23,7 @@ export default function HaremActionsDropdown({
   onNewHarem,
   onEditHarems,
   onLogout,
+  onEditUserProfile,
   editHaremsMode = false,
 }: HaremActionsDropdownProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
@@ -69,6 +71,12 @@ export default function HaremActionsDropdown({
         }}
       >
         <MenuItem disabled>{currentUser?.email || '---'}</MenuItem>
+        <MenuItem onClick={() => handleMenuItemClick(onEditUserProfile)}>
+          <ListItemIcon>
+            <Person4 fontSize='small' />
+          </ListItemIcon>
+          <ListItemText>Edit User Profile</ListItemText>
+        </MenuItem>
         <MenuItem onClick={() => handleMenuItemClick(onNewHarem)}>
           <ListItemIcon>
             <Add fontSize='small' />

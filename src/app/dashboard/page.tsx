@@ -10,6 +10,7 @@ import MobileUserHarems from '@/features/mobile-user-harems'
 import NewHarem from '@/features/new-harem'
 import NewProspect from '@/features/prospect'
 import UserHarems from '@/features/user-harems'
+import UserProfileForm from '@/features/user-profile-form'
 import { useMobileBrowserCheck } from '@/hooks'
 import { useGetAllHaremsQuery } from '@/redux/services'
 import type { Harem } from '@/types'
@@ -19,6 +20,7 @@ const Dashboard = () => {
   const [currentUserHaremForProspect, setCurrentUserHaremForProspect] =
     useState<Harem>()
   const [openHaremDialog, setOpenHaremDialog] = useState(false)
+  const [editUserProfileDialogOpen, setUserProfileDialogOpen] = useState(false)
   const [editHaremsMode, setEditHaremsMode] = useState(false)
 
   const { data: userHarems } = useGetAllHaremsQuery()
@@ -88,6 +90,7 @@ const Dashboard = () => {
                 onEditHarems={handleEditHarems}
                 onLogout={logout}
                 editHaremsMode={editHaremsMode}
+                onEditUserProfile={() => setUserProfileDialogOpen(true)}
               />
             </Box>
           </Toolbar>
@@ -133,6 +136,17 @@ const Dashboard = () => {
         <Dialog open={openHaremDialog} maxWidth='sm' fullWidth>
           <NewHarem
             handleCloseAddHaremDialog={() => setOpenHaremDialog(false)}
+          />
+        </Dialog>
+
+        <Dialog
+          open={editUserProfileDialogOpen}
+          maxWidth='sm'
+          fullWidth
+          onClose={() => setUserProfileDialogOpen(false)}
+        >
+          <UserProfileForm
+            handleClose={() => setUserProfileDialogOpen(false)}
           />
         </Dialog>
       </Box>
