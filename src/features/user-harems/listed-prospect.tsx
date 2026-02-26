@@ -32,7 +32,8 @@ const ListedProspect = ({
   const [viewProspectDetailMode, setViewProspectDetailMode] = useState(false)
   const showSnackbar = useSnackbar()
   const [isProspectDraggable, setIsProspectDraggable] = useState(false)
-  const [triggerUpdateProspect] = useUpdateProspectMutation()
+  const [triggerUpdateProspect, { isLoading: isLoadingUpdateProspect }] =
+    useUpdateProspectMutation()
   const [triggerDeleteProspect] = useDeleteProspectMutation()
 
   const handleUpdateListedProspect = async (updatedProspect: Prospect) => {
@@ -180,6 +181,7 @@ const ListedProspect = ({
           onDelete={handleDeleteListedProspect}
           onUpdate={handleUpdateListedProspect}
           handleClose={() => setViewProspectDetailMode(false)}
+          isLoadingUpdateProspect={isLoadingUpdateProspect}
         />
       </Dialog>
     </>

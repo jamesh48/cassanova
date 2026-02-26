@@ -34,7 +34,8 @@ const MobileListedProspect = ({
   const [moveMobileProspectMode, setMoveMobileProspectMode] = useState(false)
   const [viewProspectDetailMode, setViewProspectDetailMode] = useState(false)
 
-  const [triggerUpdateProspect] = useUpdateProspectMutation()
+  const [triggerUpdateProspect, { isLoading: isLoadingUpdateProspect }] =
+    useUpdateProspectMutation()
   const [triggerDeleteProspect] = useDeleteProspectMutation()
 
   const handleUpdateListedProspect = async (updatedProspect: Prospect) => {
@@ -152,6 +153,7 @@ const MobileListedProspect = ({
           onDelete={handleDeleteListedProspect}
           onUpdate={handleUpdateListedProspect}
           handleClose={() => setViewProspectDetailMode(false)}
+          isLoadingUpdateProspect={isLoadingUpdateProspect}
         />
       </Dialog>
     </>

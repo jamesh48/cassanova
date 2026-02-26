@@ -1,4 +1,4 @@
-import { Close, DeleteForeverOutlined, Edit, Save } from '@mui/icons-material'
+import { Close, DeleteForeverOutlined, Edit } from '@mui/icons-material'
 import {
   Box,
   Chip,
@@ -8,9 +8,9 @@ import {
   Typography,
 } from '@mui/material'
 import { useMemo, useState } from 'react'
-import * as yup from 'yup'
-import SimpleForm from '@/components/shared-components'
+
 import DeleteConfirmationDialog from '@/components/shared-components/DeleteConfirmationDialog'
+import CreateOrEditProspectForm from '@/features/prospect/CreateOrEditProspectForm'
 import ViewProspectDetail from '@/features/view-or-edit-prospect/ViewProspectDetail'
 import type { Prospect } from '@/types'
 
@@ -19,6 +19,7 @@ interface ViewOrEditProspectProps {
   handleClose: () => void
   onDelete: (prospectId: number) => Promise<void>
   onUpdate: (prospect: Prospect) => Promise<void>
+  isLoadingUpdateProspect: boolean
 }
 
 const ViewOrEditProspect = ({
@@ -26,6 +27,7 @@ const ViewOrEditProspect = ({
   handleClose,
   onDelete,
   onUpdate,
+  isLoadingUpdateProspect,
 }: ViewOrEditProspectProps) => {
   const [isEditMode, setIsEditMode] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -46,6 +48,15 @@ const ViewOrEditProspect = ({
 
   const handleUpdate = async (prospect: Prospect) => {
     await onUpdate(prospect)
+    setIsEditMode(false)
+  }
+
+  const handleDelete = async () => {
+    await onDelete(prospectValues.id)
+    handleClose()
+  }
+
+  const handleCancel = () => {
     setIsEditMode(false)
   }
 
@@ -198,87 +209,13 @@ const ViewOrEditProspect = ({
   // Edit Mode
   return (
     <Stack>
-      <SimpleForm<Prospect>
-        title='Edit Prospect'
-        onSubmit={handleUpdate}
-        inputs={[
-          {
-            name: 'name',
-            inputType: 'text',
-            label: 'Name',
-            rules: { required: 'Name is required' },
-          },
-          {
-            name: 'age',
-            inputType: 'text',
-            label: 'Prospect Age',
-            rules: { required: false },
-          },
-          {
-            name: 'occupation',
-            label: 'Prospect Occupation',
-            inputType: 'text',
-            rules: {
-              required: false,
-            },
-          },
-          {
-            name: 'location',
-            inputType: 'text',
-            label: 'Location',
-            rules: { required: false },
-          },
-          {
-            name: 'notes',
-            inputType: 'textarea',
-            label: 'Notes',
-            rows: 4,
-            maxRows: 8,
-            placeholder: 'Add any notes about this prospect...',
-          },
-        ]}
-        schema={yup.object<Prospect>({
-          name: yup.string().required('Name is Required'),
-          age: yup
-            .number()
-            .typeError('Must be a number')
-            .min(18, 'This app is for adults')
-            .optional(),
-          occupation: yup.string().optional(),
-          notes: yup.string().optional(),
-        })}
-        secondaryButtonProps={{
-          children: 'Cancel Edits',
-          onClick: () => setIsEditMode(false),
-        }}
-        actionButtonProps={{
-          children: (
-            <>
-              <Save sx={{ mr: 1 }} />
-              Save
-            </>
-          ),
-        }}
-        deleteButtonProps={{
-          children: (
-            <>
-              <DeleteForeverOutlined sx={{ mr: 1 }} />
-              Delete Prospect
-            </>
-          ),
-          onClick: async () => {
-            await onDelete(prospectValues.id)
-            handleClose()
-          },
-          confirmationTitle: 'Delete Prospect?',
-          confirmationMessage: `Are you sure you want to delete ${prospectValues.name}? This action cannot be undone.`,
-        }}
-        defaultValues={prospectValues}
-        fullWidth
-        snackbarProps={{
-          successMessage: 'Prospect updated successfully',
-          failureMessage: 'Failed to update prospect',
-        }}
+      <CreateOrEditProspectForm
+        mode='edit'
+        prospectValues={prospectValues}
+        handleSubmit={handleUpdate}
+        handleDelete={handleDelete}
+        handleCancel={handleCancel}
+        isLoading={isLoadingUpdateProspect}
       />
     </Stack>
   )
