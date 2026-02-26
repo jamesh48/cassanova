@@ -175,7 +175,12 @@ const ListedProspect = ({
           </Typography>
         </Box>
       </Box>
-      <Dialog open={viewProspectDetailMode} maxWidth='sm' fullWidth>
+      <Dialog
+        open={viewProspectDetailMode}
+        onClose={() => setViewProspectDetailMode(false)}
+        maxWidth='sm'
+        fullWidth
+      >
         <ViewOrEditProspect
           defaultValues={userHaremProspect}
           onDelete={handleDeleteListedProspect}
