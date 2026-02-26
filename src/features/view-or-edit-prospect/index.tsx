@@ -125,7 +125,7 @@ const ViewOrEditProspect = ({
           <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-start' }}>
             <ViewProspectDetail
               label='Age'
-              value={prospectValues.age.toString()}
+              value={prospectValues.age?.toString() || ''}
             />
             <ViewProspectDetail
               label='Occupation'

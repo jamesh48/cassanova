@@ -17,7 +17,7 @@ export interface Prospect {
   hotLead: boolean
   haremOrder: number
   timeInCurrentHarem: string
-  age: number
+  age: number | null
   occupation: string
   notes: string
   location: string

@@ -22,7 +22,9 @@ type EditProspectFormProps = CreateOrEditProspectFormBaseProps & {
   handleDelete: () => Promise<void>
 }
 
-type CreateOrEditProspectFormProps = CreateProspectFormProps | EditProspectFormProps
+type CreateOrEditProspectFormProps =
+  | CreateProspectFormProps
+  | EditProspectFormProps
 
 const CreateOrEditProspectForm = ({
   mode,
@@ -56,6 +58,12 @@ const CreateOrEditProspectForm = ({
           rules: {
             required: false,
           },
+        },
+        {
+          name: 'location',
+          label: 'Prospect Location',
+          inputType: 'text',
+          rules: { required: false },
         },
         {
           name: 'notes',
@@ -96,22 +104,32 @@ const CreateOrEditProspectForm = ({
         ),
         loading: isLoading,
       }}
-      deleteButtonProps={mode === 'edit' ? {
-        children: (
-          <>
-            <DeleteForeverOutlined sx={{ mr: 1 }} />
-            Delete Prospect
-          </>
-        ),
-        onClick: handleDelete,
-        confirmationTitle: 'Delete Prospect?',
-        confirmationMessage: `Are you sure you want to delete ${prospectValues.name}? This action cannot be undone.`,
-      } : undefined}
+      deleteButtonProps={
+        mode === 'edit'
+          ? {
+              children: (
+                <>
+                  <DeleteForeverOutlined sx={{ mr: 1 }} />
+                  Delete Prospect
+                </>
+              ),
+              onClick: handleDelete,
+              confirmationTitle: 'Delete Prospect?',
+              confirmationMessage: `Are you sure you want to delete ${prospectValues.name}? This action cannot be undone.`,
+            }
+          : undefined
+      }
       defaultValues={prospectValues}
       fullWidth
       snackbarProps={{
-        successMessage: mode === 'create' ? 'Prospect created successfully' : 'Prospect updated successfully',
-        failureMessage: mode === 'create' ? 'Failed to create prospect' : 'Failed to update prospect',
+        successMessage:
+          mode === 'create'
+            ? 'Prospect created successfully'
+            : 'Prospect updated successfully',
+        failureMessage:
+          mode === 'create'
+            ? 'Failed to create prospect'
+            : 'Failed to update prospect',
       }}
     />
   )
