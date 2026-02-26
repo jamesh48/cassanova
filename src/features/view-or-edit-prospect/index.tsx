@@ -61,7 +61,11 @@ const ViewOrEditProspect = ({
   }
 
   const prospectValues = useMemo(() => {
-    return defaultValues
+    return {
+      ...defaultValues,
+      // Cast null as empty string
+      age: defaultValues.age === null ? '' : defaultValues.age,
+    }
   }, [defaultValues])
 
   // View Mode
