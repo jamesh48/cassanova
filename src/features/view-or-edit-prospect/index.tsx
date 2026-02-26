@@ -7,8 +7,12 @@ import {
   Stack,
   Typography,
 } from '@mui/material'
+import dynamic from 'next/dynamic'
 import { useMemo, useState } from 'react'
-import LocationMap from '@/components/location-map'
+
+const LocationMap = dynamic(() => import('@/components/location-map'), {
+  ssr: false,
+})
 import DeleteConfirmationDialog from '@/components/shared-components/DeleteConfirmationDialog'
 import CreateOrEditProspectForm from '@/features/prospect/CreateOrEditProspectForm'
 import ViewProspectDetail from '@/features/view-or-edit-prospect/ViewProspectDetail'
