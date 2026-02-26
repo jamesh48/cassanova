@@ -13,6 +13,7 @@ import { useMemo, useState } from 'react'
 const LocationMap = dynamic(() => import('@/components/location-map'), {
   ssr: false,
 })
+
 import DeleteConfirmationDialog from '@/components/shared-components/DeleteConfirmationDialog'
 import CreateOrEditProspectForm from '@/features/prospect/CreateOrEditProspectForm'
 import ViewProspectDetail from '@/features/view-or-edit-prospect/ViewProspectDetail'
@@ -76,7 +77,7 @@ const ViewOrEditProspect = ({
     }
   }, [defaultValues])
 
-  const { distanceMiles } = useLocationDistance(
+  const { distanceMiles, loading: loadingDistance } = useLocationDistance(
     prospectValues.location,
     currentUser?.userLocation,
   )
@@ -168,6 +169,11 @@ const ViewOrEditProspect = ({
             <ViewProspectDetail
               label='Prospect Location'
               value={mileageLabel}
+              tooltip={
+                !loadingDistance && !distanceMiles?.toFixed(1)
+                  ? 'Add User Location in Actions Dropdown to see approximate distance to prospect'
+                  : ''
+              }
             />
             <LocationMap
               location={prospectValues.location}
