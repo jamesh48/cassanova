@@ -9,13 +9,6 @@ interface NewProspectProps {
   currentUserHarem?: Harem
 }
 
-interface NewProspectFormValues {
-  name: string
-  notes: string
-  age: number
-  occupation: string
-}
-
 const NewProspect = ({
   handleCloseProspectDialog,
   currentUserHarem,
@@ -23,28 +16,19 @@ const NewProspect = ({
   const [triggerCreateProspect, { isLoading: isLoadingCreateProspect }] =
     useCreateProspectMutation()
 
-  const handleCreateProspect: SubmitHandler<NewProspectFormValues> = async (
-    values,
-  ) => {
+  const handleCreateProspect: SubmitHandler<Prospect> = async (values) => {
     if (currentUserHarem?.id) {
-      try {
-        await triggerCreateProspect({
-          name: values.name,
-          haremId: currentUserHarem.id,
-          notes: values.notes,
-          age: values.age,
-          occupation: values.occupation,
-        }).unwrap()
+      await triggerCreateProspect({
+        ...values,
+        haremId: currentUserHarem.id,
+      }).unwrap()
 
-        handleCloseProspectDialog()
-      } catch (_err) {
-        // TODO: handle error
-      }
+      handleCloseProspectDialog()
     }
   }
 
   return (
-    <SimpleForm<NewProspectFormValues>
+    <SimpleForm<Prospect>
       onSubmit={handleCreateProspect}
       defaultValues={{ name: '' }}
       title='New Prospect'
@@ -77,6 +61,12 @@ const NewProspect = ({
           rules: {
             required: false,
           },
+        },
+        {
+          name: 'location',
+          label: 'Prospect Location',
+          inputType: 'text',
+          rules: { required: false },
         },
         {
           name: 'notes',

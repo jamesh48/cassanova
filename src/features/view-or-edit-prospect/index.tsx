@@ -11,6 +11,7 @@ import { useMemo, useState } from 'react'
 import * as yup from 'yup'
 import SimpleForm from '@/components/shared-components'
 import DeleteConfirmationDialog from '@/components/shared-components/DeleteConfirmationDialog'
+import ViewProspectDetail from '@/features/view-or-edit-prospect/ViewProspectDetail'
 import type { Prospect } from '@/types'
 
 interface ViewOrEditProspectProps {
@@ -107,64 +108,24 @@ const ViewOrEditProspect = ({
 
           {/* Name Field */}
           <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-start' }}>
-            <Box flex='1'>
-              <Typography
-                variant='caption'
-                color='text.secondary'
-                sx={{
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                  letterSpacing: 0.5,
-                }}
-              >
-                Name
-              </Typography>
-              <Typography variant='body1' sx={{ mt: 0.5, fontSize: '1.1rem' }}>
-                {prospectValues.name || (
-                  <em style={{ color: 'text.secondary' }}>No name</em>
-                )}
-              </Typography>
-            </Box>
+            <ViewProspectDetail label='Name' value={prospectValues.name} />
           </Box>
 
           <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-start' }}>
-            <Box flex='1'>
-              <Typography
-                variant='caption'
-                color='text.secondary'
-                sx={{
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                  letterSpacing: 0.5,
-                }}
-              >
-                Age
-              </Typography>
-              <Typography variant='body1' sx={{ mt: 0.5, fontSize: '1.1rem' }}>
-                {prospectValues.age || (
-                  <em style={{ color: 'text.secondary' }}>---</em>
-                )}
-              </Typography>
-            </Box>
-            <Box flex='1'>
-              {' '}
-              <Typography
-                variant='caption'
-                color='text.secondary'
-                sx={{
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                  letterSpacing: 0.5,
-                }}
-              >
-                Occupation
-              </Typography>
-              <Typography variant='body1' sx={{ mt: 0.5, fontSize: '1.1rem' }}>
-                {prospectValues.occupation || (
-                  <em style={{ color: 'text.secondary' }}>---</em>
-                )}
-              </Typography>
-            </Box>
+            <ViewProspectDetail
+              label='Age'
+              value={prospectValues.age.toString()}
+            />
+            <ViewProspectDetail
+              label='Occupation'
+              value={prospectValues.occupation}
+            />
+          </Box>
+          <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-start' }}>
+            <ViewProspectDetail
+              label='Location'
+              value={prospectValues.location}
+            />
           </Box>
 
           {/* Notes Field */}
@@ -216,9 +177,7 @@ const ViewOrEditProspect = ({
               color='error'
               variant='outlined'
               onClick={handleDeleteClick}
-              sx={{
-                borderStyle: 'dashed',
-              }}
+              sx={{ borderStyle: 'dashed' }}
             />
           </Box>
         </Box>
@@ -262,6 +221,12 @@ const ViewOrEditProspect = ({
             rules: {
               required: false,
             },
+          },
+          {
+            name: 'location',
+            inputType: 'text',
+            label: 'Location',
+            rules: { required: false },
           },
           {
             name: 'notes',

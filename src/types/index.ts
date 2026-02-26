@@ -20,6 +20,7 @@ export interface Prospect {
   age: number
   occupation: string
   notes: string
+  location: string
   createdAt: string
   updatedAt: string
   /* For Local Consumption */

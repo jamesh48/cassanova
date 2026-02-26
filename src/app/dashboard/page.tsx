@@ -123,9 +123,10 @@ const Dashboard = () => {
         <Dialog open={!!currentUserHaremForProspect} maxWidth='sm' fullWidth>
           <NewProspect
             currentUserHarem={currentUserHaremForProspect}
-            handleCloseProspectDialog={() =>
+            handleCloseProspectDialog={() => {
               setCurrentUserHaremForProspect(undefined)
-            }
+              setOpenHaremDialog(false)
+            }}
           />
         </Dialog>
 
