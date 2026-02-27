@@ -27,4 +27,12 @@ export interface Prospect {
   updatedAt: string
   /* For Local Consumption */
   haremId: number
+  tags: { prospectId: number; tagId: number; tag: Tag }[]
+}
+
+export interface Tag {
+  id: number
+  userId: number
+  name: string
+  createdAt: string
 }

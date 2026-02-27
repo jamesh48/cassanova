@@ -1,11 +1,11 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import type { Harem, Prospect, User } from '@/types'
+import type { Harem, Prospect, Tag, User } from '@/types'
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3030/api/'
 
 export const cassanovaProtectedApi = createApi({
   reducerPath: 'protectedApi',
-  tagTypes: ['Prospects', 'Harems', 'User'],
+  tagTypes: ['Prospects', 'Harems', 'User', 'Tags'],
   baseQuery: fetchBaseQuery({
     baseUrl,
     prepareHeaders: (headers) => {
@@ -117,6 +117,52 @@ export const cassanovaProtectedApi = createApi({
       }),
       providesTags: ['User'],
     }),
+    // Tags
+    getUserTags: builder.query<Tag[], void>({
+      query: () => ({
+        method: 'GET',
+        url: 'tags',
+      }),
+      providesTags: ['Tags'],
+    }),
+    createUserTag: builder.mutation<Tag, Pick<Tag, 'name'>>({
+      query: (body) => ({
+        method: 'POST',
+        url: 'tags',
+        body,
+      }),
+      invalidatesTags: ['Tags'],
+    }),
+    // Prospect Tags
+    appendTagToProspect: builder.mutation<
+      void,
+      { tagId: number; prospectId: number }
+    >({
+      query: ({ prospectId, ...body }) => ({
+        method: 'POST',
+        url: `/prospects/${prospectId}/tags`,
+        body,
+      }),
+      invalidatesTags: ['Harems'],
+    }),
+    deleteTagFromProspect: builder.mutation<
+      void,
+      { tagId: number; prospectId: number }
+    >({
+      query: ({ prospectId, tagId }) => ({
+        url: `/prospects/${prospectId}/tags/${tagId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Harems'],
+    }),
+    deleteUserTag: builder.mutation<void, { tagId: number }>({
+      query: ({ tagId }) => ({
+        url: `/tags/${tagId}`,
+        method: 'DELETE',
+      }),
+      // invalidate harems so that tags deleted from prospects are refreshed
+      invalidatesTags: ['Tags', 'Harems'],
+    }),
   }),
 })
 
@@ -138,4 +184,10 @@ export const {
   // User
   useUpdateUserMutation,
   useGetCurrentUserQuery,
+  // Tags
+  useGetUserTagsQuery,
+  useCreateUserTagMutation,
+  useAppendTagToProspectMutation,
+  useDeleteTagFromProspectMutation,
+  useDeleteUserTagMutation,
 } = cassanovaProtectedApi

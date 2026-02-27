@@ -36,6 +36,8 @@ const CreateOrEditProspectForm = ({
 }: CreateOrEditProspectFormProps) => {
   return (
     <SimpleForm<Prospect>
+      closeable
+      handleClose={handleCancel}
       title={mode === 'create' ? 'Create Prospect' : 'Edit Prospect'}
       onSubmit={handleSubmit}
       inputs={[

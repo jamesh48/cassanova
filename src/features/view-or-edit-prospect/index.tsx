@@ -15,6 +15,7 @@ const LocationMap = dynamic(() => import('@/components/location-map'), {
 })
 
 import DeleteConfirmationDialog from '@/components/shared-components/DeleteConfirmationDialog'
+import ProspectTags from '@/features/ProspectTags'
 import CreateOrEditProspectForm from '@/features/prospect/CreateOrEditProspectForm'
 import ViewProspectDetail from '@/features/view-or-edit-prospect/ViewProspectDetail'
 import { useLocationDistance } from '@/hooks'
@@ -140,6 +141,10 @@ const ViewOrEditProspect = ({
               </IconButton>
             </Box>
           </Box>
+          <ProspectTags
+            prospectId={defaultValues.id}
+            existingTagValue={defaultValues.tags.map((tag) => tag.tag)}
+          />
 
           <Divider sx={{ mb: 3 }} />
 

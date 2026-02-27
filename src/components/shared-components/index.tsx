@@ -1,5 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Visibility, VisibilityOff } from '@mui/icons-material'
+import { Close, Visibility, VisibilityOff } from '@mui/icons-material'
 import {
   Box,
   Button,
@@ -44,6 +44,12 @@ type TextInput<T extends FieldValues> = BaseInput<T> & {
   inputType: 'text' | 'password'
 }
 
+type VoidInput = {
+  inputType: 'void'
+  renderAfter?: () => ReactNode
+  label: string
+}
+
 type TextAreaInput<T extends FieldValues> = BaseInput<T> & {
   inputType: 'textarea'
   rows?: number
@@ -69,6 +75,7 @@ type FormInput<T extends FieldValues> =
   | TextInput<T>
   | TextAreaInput<T>
   | SelectInput<T>
+  | VoidInput
 
 type SimpleFormPropsBase<T extends FieldValues> = {
   onSubmit: SubmitHandler<T>
@@ -76,6 +83,8 @@ type SimpleFormPropsBase<T extends FieldValues> = {
   subtitle?: string
   inputs: FormInput<T>[]
   actionButtonProps: ButtonProps
+  closeable?: boolean
+  handleClose?: () => void
   secondaryButtonProps?: ButtonProps
   deleteButtonProps?: DeleteButtonProps
   defaultValues?: DefaultValues<T>
@@ -118,6 +127,8 @@ const SimpleForm = <T extends FieldValues>({
   fullWidth = false,
   schema,
   mode,
+  closeable,
+  handleClose,
 }: SimpleFormProps<T>) => {
   const revealSnackbar = useSnackbar()
   const { handleSubmit, control, reset } = useForm<T>({
@@ -212,27 +223,45 @@ const SimpleForm = <T extends FieldValues>({
           }}
         >
           {/* Header */}
-          <Box>
-            <Typography
-              variant='h5'
-              component='h2'
-              fontWeight={600}
-              gutterBottom
-            >
-              {title}
-            </Typography>
-            {subtitle && (
-              <Typography variant='body2' color='text.secondary'>
-                {subtitle}
+          <Box
+            display='flex'
+            justifyContent='space-between'
+            alignItems='center'
+          >
+            <Box>
+              <Typography
+                variant='h5'
+                component='h2'
+                fontWeight={600}
+                gutterBottom
+              >
+                {title}
               </Typography>
+              {subtitle && (
+                <Typography variant='body2' color='text.secondary'>
+                  {subtitle}
+                </Typography>
+              )}
+            </Box>
+            {closeable && (
+              <IconButton onClick={handleClose}>
+                <Close />
+              </IconButton>
             )}
           </Box>
 
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             {inputs.map((input, idx) => {
+              const isVoidField = input.inputType === 'void'
+
+              if (isVoidField) {
+                return <>{input.renderAfter?.()}</>
+              }
+
               const isPasswordField = input.inputType === 'password'
               const isSelectField = input.inputType === 'select'
               const isTextAreaField = input.inputType === 'textarea'
+
               const fieldName = input.name as string
               const showPassword = passwordVisibility[fieldName] || false
 
@@ -314,6 +343,7 @@ const SimpleForm = <T extends FieldValues>({
                       ) : (
                         textAreaField
                       )
+                    } else if (isVoidField) {
                     } else {
                       // Text/Password Field
                       const textField = (
