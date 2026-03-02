@@ -1,4 +1,5 @@
 import { Close, DeleteForeverOutlined, Edit } from '@mui/icons-material'
+import ContactsIcon from '@mui/icons-material/Contacts'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import MessageIcon from '@mui/icons-material/Message'
 import PhoneIcon from '@mui/icons-material/Phone'
@@ -101,6 +102,49 @@ const ViewOrEditProspect = ({
     const rawPhoneNumber = stripPhoneNumberFormatting(defaultValues.phoneNumber)
     if (rawPhoneNumber) {
       window.location.href = `sms:${rawPhoneNumber}`
+    }
+  }
+
+  const handleAddToContacts = () => {
+    const rawPhoneNumber = stripPhoneNumberFormatting(defaultValues.phoneNumber)
+
+    // Create vCard format
+    const vCard = [
+      'BEGIN:VCARD',
+      'VERSION:3.0',
+      `FN:${defaultValues.name}`,
+      `N:${defaultValues.name};;;`,
+      rawPhoneNumber ? `TEL;TYPE=CELL:${rawPhoneNumber}` : '',
+      defaultValues.notes
+        ? `NOTE:${defaultValues.notes.replace(/\n/g, '\\n')}`
+        : '',
+      defaultValues.location ? `ADR:;;${defaultValues.location};;;;` : '',
+      defaultValues.occupation ? `TITLE:${defaultValues.occupation}` : '',
+      'END:VCARD',
+    ]
+      .filter(Boolean)
+      .join('\n')
+
+    // Detect mobile devices (iOS, iPadOS, Android)
+    const isMobile = /iPad|iPhone|iPod|Android/.test(navigator.userAgent)
+
+    if (isMobile) {
+      // On mobile, use data URI to trigger native contacts app
+      const dataUri = `data:text/vcard;charset=utf-8,${encodeURIComponent(vCard)}`
+      window.location.href = dataUri
+      revealSnackbar('Opening contact...', { variant: 'success' })
+    } else {
+      // On desktop (macOS, Windows, Linux), download the vCard file
+      const blob = new Blob([vCard], { type: 'text/vcard;charset=utf-8' })
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `${defaultValues.name.replace(/\s+/g, '_')}.vcf`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+      revealSnackbar('Contact card downloaded - double-click to add to Contacts', { variant: 'success' })
     }
   }
 
@@ -226,6 +270,20 @@ const ViewOrEditProspect = ({
                           }}
                         >
                           <PhoneIcon sx={{ fontSize: '0.875rem' }} />
+                        </IconButton>
+                      </Tooltip>,
+                      <Tooltip key='add-contact' title='Add to contacts'>
+                        <IconButton
+                          size='small'
+                          onClick={handleAddToContacts}
+                          sx={{
+                            padding: '2px',
+                            '&:hover': {
+                              backgroundColor: 'action.hover',
+                            },
+                          }}
+                        >
+                          <ContactsIcon sx={{ fontSize: '0.875rem' }} />
                         </IconButton>
                       </Tooltip>,
                     ]
