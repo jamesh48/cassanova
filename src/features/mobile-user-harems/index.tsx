@@ -65,11 +65,10 @@ const MobileUserHarems = ({
       flexDirection='column'
       width='100%'
       sx={{
-        // Use viewport height to ensure it fits within the screen
-        height: '100vh',
+        // Fill parent container (which is already sized correctly via flex)
+        height: '100%',
         // Prevent any scrolling at this level
         overflow: 'hidden',
-        position: 'relative',
         // Prevent pull-to-refresh and overscroll
         overscrollBehavior: 'none',
       }}
