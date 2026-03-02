@@ -41,7 +41,6 @@ const Dashboard = () => {
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          height: '100vh',
           overflow: 'hidden',
           bgcolor: 'background.default',
           position: 'fixed',
@@ -107,6 +106,7 @@ const Dashboard = () => {
           component='main'
           sx={{
             flex: 1,
+            minHeight: 0,
             overflow: 'hidden',
             display: 'flex',
             flexDirection: 'column',

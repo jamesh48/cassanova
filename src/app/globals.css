@@ -5,14 +5,16 @@
 
 html {
   height: 100%;
-  overflow-x: hidden;
+  overflow: hidden;
   /* Prevent overscroll/bounce on mobile */
-  overscroll-behavior-y: none;
+  overscroll-behavior: none;
+  /* Fix for mobile browsers */
+  touch-action: pan-x pan-y;
 }
 
 body {
   max-width: 100vw;
-  overflow-x: hidden;
+  overflow: hidden;
   height: 100%;
   margin: 0;
   padding: 0;
@@ -26,6 +28,7 @@ body {
 /* Container for Next.js app */
 #__next {
   height: 100%;
+  overflow: hidden;
 }
 
 * {
