@@ -64,19 +64,26 @@ const MobileUserHarems = ({
       display='flex'
       flexDirection='column'
       width='100%'
-      height='100%'
       sx={{
+        // Use viewport height to ensure it fits within the screen
+        height: '100vh',
         // Prevent any scrolling at this level
         overflow: 'hidden',
+        position: 'relative',
+        // Prevent pull-to-refresh and overscroll
+        overscrollBehavior: 'none',
       }}
     >
       {/* Scrollable content area */}
       <Box
         sx={{
           flex: 1,
+          minHeight: 0, // Important for flex children with overflow
           overflow: 'auto',
           p: 1,
           WebkitOverflowScrolling: 'touch',
+          // Prevent this scrollable area from affecting parent
+          overscrollBehavior: 'contain',
         }}
       >
         <MobileUserHarem
