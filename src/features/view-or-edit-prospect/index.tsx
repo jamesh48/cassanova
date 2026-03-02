@@ -1,5 +1,7 @@
 import { Close, DeleteForeverOutlined, Edit } from '@mui/icons-material'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import MessageIcon from '@mui/icons-material/Message'
+import PhoneIcon from '@mui/icons-material/Phone'
 import {
   Box,
   Chip,
@@ -88,6 +90,20 @@ const ViewOrEditProspect = ({
     }
   }
 
+  const handleCallPhoneNumber = () => {
+    const rawPhoneNumber = stripPhoneNumberFormatting(defaultValues.phoneNumber)
+    if (rawPhoneNumber) {
+      window.location.href = `tel:${rawPhoneNumber}`
+    }
+  }
+
+  const handleTextPhoneNumber = () => {
+    const rawPhoneNumber = stripPhoneNumberFormatting(defaultValues.phoneNumber)
+    if (rawPhoneNumber) {
+      window.location.href = `sms:${rawPhoneNumber}`
+    }
+  }
+
   const prospectValues = useMemo(() => {
     return {
       ...defaultValues,
@@ -167,24 +183,53 @@ const ViewOrEditProspect = ({
             <ViewProspectDetail
               label='Phone Number'
               value={prospectValues.phoneNumber}
-              actionButton={
-                prospectValues.phoneNumber ? (
-                  <Tooltip title='Copy phone number'>
-                    <IconButton
-                      size='small'
-                      onClick={handleCopyPhoneNumber}
-                      sx={{
-                        ml: 0.5,
-                        padding: '2px',
-                        '&:hover': {
-                          backgroundColor: 'action.hover',
-                        },
-                      }}
-                    >
-                      <ContentCopyIcon sx={{ fontSize: '0.875rem' }} />
-                    </IconButton>
-                  </Tooltip>
-                ) : null
+              actionPanel={
+                prospectValues.phoneNumber
+                  ? [
+                      <Tooltip key='copy' title='Copy phone number'>
+                        <IconButton
+                          size='small'
+                          onClick={handleCopyPhoneNumber}
+                          sx={{
+                            padding: '2px',
+                            '&:hover': {
+                              backgroundColor: 'action.hover',
+                            },
+                          }}
+                        >
+                          <ContentCopyIcon sx={{ fontSize: '0.875rem' }} />
+                        </IconButton>
+                      </Tooltip>,
+                      <Tooltip key='text' title='Text phone number'>
+                        <IconButton
+                          size='small'
+                          onClick={handleTextPhoneNumber}
+                          sx={{
+                            padding: '2px',
+                            '&:hover': {
+                              backgroundColor: 'action.hover',
+                            },
+                          }}
+                        >
+                          <MessageIcon sx={{ fontSize: '0.875rem' }} />
+                        </IconButton>
+                      </Tooltip>,
+                      <Tooltip key='call' title='Call phone number'>
+                        <IconButton
+                          size='small'
+                          onClick={handleCallPhoneNumber}
+                          sx={{
+                            padding: '2px',
+                            '&:hover': {
+                              backgroundColor: 'action.hover',
+                            },
+                          }}
+                        >
+                          <PhoneIcon sx={{ fontSize: '0.875rem' }} />
+                        </IconButton>
+                      </Tooltip>,
+                    ]
+                  : undefined
               }
             />
           </Box>
