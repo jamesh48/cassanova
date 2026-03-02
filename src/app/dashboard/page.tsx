@@ -44,6 +44,12 @@ const Dashboard = () => {
           height: '100vh',
           overflow: 'hidden',
           bgcolor: 'background.default',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          overscrollBehavior: 'none',
         }}
       >
         <SnackbarProvider dense={isMobile} />

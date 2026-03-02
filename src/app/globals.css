@@ -3,18 +3,29 @@
   --foreground: #171717;
 }
 
-html,
-body {
-  max-width: 100vw;
+html {
+  height: 100%;
   overflow-x: hidden;
+  /* Prevent overscroll/bounce on mobile */
+  overscroll-behavior-y: none;
 }
 
 body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  height: 100%;
+  margin: 0;
+  padding: 0;
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Container for Next.js app */
+#__next {
+  height: 100%;
 }
 
 * {
