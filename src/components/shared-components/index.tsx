@@ -16,7 +16,7 @@ import {
   Typography,
 } from '@mui/material'
 import Link, { type LinkProps } from 'next/link'
-import { type ReactNode, useEffect, useState } from 'react'
+import { Fragment, type ReactNode, useEffect, useState } from 'react'
 import {
   Controller,
   type DefaultValues,
@@ -255,7 +255,7 @@ const SimpleForm = <T extends FieldValues>({
               const isVoidField = input.inputType === 'void'
 
               if (isVoidField) {
-                return <>{input.renderAfter?.()}</>
+                return <Fragment key={input.label}>{input.renderAfter?.()}</Fragment>
               }
 
               const isPasswordField = input.inputType === 'password'

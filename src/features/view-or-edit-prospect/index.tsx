@@ -141,12 +141,6 @@ const ViewOrEditProspect = ({
               </IconButton>
             </Box>
           </Box>
-          <ProspectTags
-            prospectId={defaultValues.id}
-            existingTagValue={defaultValues.tags.map((tag) => tag.tag)}
-          />
-
-          <Divider sx={{ mb: 3 }} />
 
           {/* Name Field */}
           <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-start' }}>
@@ -163,6 +157,15 @@ const ViewOrEditProspect = ({
               value={prospectValues.occupation}
             />
           </Box>
+
+          <Divider sx={{ my: 1.5 }} />
+
+          <ProspectTags
+            prospectId={defaultValues.id}
+            existingTagValue={defaultValues.tags.map((tag) => tag.tag)}
+          />
+
+          <Divider sx={{ my: 1.5 }} />
           <Box
             sx={{
               mb: 3,
@@ -212,7 +215,7 @@ const ViewOrEditProspect = ({
             </Typography>
           </Box>
 
-          <Divider sx={{ mb: 2 }} />
+          <Divider sx={{ my: 3, width: '100%' }} />
 
           {/* Delete Button */}
           <Box>

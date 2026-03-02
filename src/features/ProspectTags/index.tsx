@@ -16,9 +16,20 @@ interface ProspectTagsProps {
 const ProspectTags = ({ prospectId, existingTagValue }: ProspectTagsProps) => {
   const { data: userTags } = useGetUserTagsQuery()
 
-  const tagOptions = useMemo(() => {
-    return userTags?.map((userTag) => userTag.name)
-  }, [userTags])
+  const filteredTagOptions = useMemo(() => {
+    return (
+      userTags?.reduce<string[]>((acc, userTag) => {
+        if (
+          !existingTagValue.find(
+            (existingTag) => existingTag.name === userTag.name,
+          )
+        ) {
+          return acc.concat(userTag.name)
+        }
+        return acc
+      }, []) || []
+    )
+  }, [userTags, existingTagValue])
 
   const [triggerCreateUserTag] = useCreateUserTagMutation()
   const [triggerDeleteTagFromProspect] = useDeleteTagFromProspectMutation()
@@ -47,9 +58,9 @@ const ProspectTags = ({ prospectId, existingTagValue }: ProspectTagsProps) => {
   return (
     <MultiComboBox
       onSubmit={handleSubmit}
-      options={tagOptions || []}
+      options={filteredTagOptions}
       value={existingTagValue.map((tag) => tag.name)}
-      label='Tags'
+      label='Prospect Tags'
       mode='form'
       handleDelete={onDelete}
     />
