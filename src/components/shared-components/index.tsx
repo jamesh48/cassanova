@@ -42,6 +42,7 @@ type BaseInput<T extends FieldValues> = {
 
 type TextInput<T extends FieldValues> = BaseInput<T> & {
   inputType: 'text' | 'password'
+  onChangeFormatter?: (value: string) => string
 }
 
 type VoidInput = {
@@ -346,10 +347,18 @@ const SimpleForm = <T extends FieldValues>({
                     } else if (isVoidField) {
                     } else {
                       // Text/Password Field
+                      const textInput = input as TextInput<T>
                       const textField = (
                         <TextField
                           {...field}
                           value={field.value ?? ''}
+                          onChange={(e) => {
+                            const value = e.target.value
+                            const formattedValue = textInput.onChangeFormatter
+                              ? textInput.onChangeFormatter(value)
+                              : value
+                            field.onChange(formattedValue)
+                          }}
                           type={
                             isPasswordField && !showPassword
                               ? 'password'

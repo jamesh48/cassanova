@@ -1,19 +1,22 @@
 import { InfoOutline } from '@mui/icons-material'
 import { Box, Tooltip, Typography } from '@mui/material'
+import type { ReactNode } from 'react'
 
 interface ViewProspectDetailProps {
   label: string
   value: string
   tooltip?: string
+  actionButton?: ReactNode
 }
 const ViewProspectDetail = ({
   label,
   value,
   tooltip,
+  actionButton,
 }: ViewProspectDetailProps) => {
   return (
     <Box flex='1'>
-      <Box display='flex' gap={1}>
+      <Box display='flex' gap={1} alignItems='center'>
         <Typography
           variant='caption'
           color='text.secondary'
@@ -32,6 +35,7 @@ const ViewProspectDetail = ({
             <InfoOutline sx={{ color: 'GrayText', cursor: 'help' }} />
           </Tooltip>
         )}
+        {actionButton}
       </Box>
       <Typography variant='body1' sx={{ mt: 0.5, fontSize: '1.1rem' }}>
         {value || <em style={{ color: 'text.secondary' }}>---</em>}

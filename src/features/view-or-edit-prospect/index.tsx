@@ -1,10 +1,12 @@
 import { Close, DeleteForeverOutlined, Edit } from '@mui/icons-material'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import {
   Box,
   Chip,
   Divider,
   IconButton,
   Stack,
+  Tooltip,
   Typography,
 } from '@mui/material'
 import dynamic from 'next/dynamic'
@@ -18,9 +20,10 @@ import DeleteConfirmationDialog from '@/components/shared-components/DeleteConfi
 import ProspectTags from '@/features/ProspectTags'
 import CreateOrEditProspectForm from '@/features/prospect/CreateOrEditProspectForm'
 import ViewProspectDetail from '@/features/view-or-edit-prospect/ViewProspectDetail'
-import { useLocationDistance } from '@/hooks'
+import { useLocationDistance, useSnackbar } from '@/hooks'
 import { useGetCurrentUserQuery } from '@/redux/services'
 import type { Prospect } from '@/types'
+import { formatPhoneNumber, stripPhoneNumberFormatting } from '@/utils'
 
 interface ViewOrEditProspectProps {
   defaultValues: Prospect
@@ -38,6 +41,7 @@ const ViewOrEditProspect = ({
   isLoadingUpdateProspect,
 }: ViewOrEditProspectProps) => {
   const { data: currentUser } = useGetCurrentUserQuery()
+  const revealSnackbar = useSnackbar()
 
   const [isEditMode, setIsEditMode] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -70,11 +74,26 @@ const ViewOrEditProspect = ({
     setIsEditMode(false)
   }
 
+  const handleCopyPhoneNumber = async () => {
+    const rawPhoneNumber = stripPhoneNumberFormatting(defaultValues.phoneNumber)
+    if (rawPhoneNumber) {
+      try {
+        await navigator.clipboard.writeText(rawPhoneNumber)
+        revealSnackbar('Phone number copied to clipboard', {
+          variant: 'success',
+        })
+      } catch (_err) {
+        revealSnackbar('Failed to copy phone number', { variant: 'error' })
+      }
+    }
+  }
+
   const prospectValues = useMemo(() => {
     return {
       ...defaultValues,
       // Cast null as empty string
       age: defaultValues.age === null ? '' : defaultValues.age,
+      phoneNumber: formatPhoneNumber(defaultValues.phoneNumber),
     }
   }, [defaultValues])
 
@@ -145,6 +164,29 @@ const ViewOrEditProspect = ({
           {/* Name Field */}
           <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-start' }}>
             <ViewProspectDetail label='Name' value={prospectValues.name} />
+            <ViewProspectDetail
+              label='Phone Number'
+              value={prospectValues.phoneNumber}
+              actionButton={
+                prospectValues.phoneNumber ? (
+                  <Tooltip title='Copy phone number'>
+                    <IconButton
+                      size='small'
+                      onClick={handleCopyPhoneNumber}
+                      sx={{
+                        ml: 0.5,
+                        padding: '2px',
+                        '&:hover': {
+                          backgroundColor: 'action.hover',
+                        },
+                      }}
+                    >
+                      <ContentCopyIcon sx={{ fontSize: '0.875rem' }} />
+                    </IconButton>
+                  </Tooltip>
+                ) : null
+              }
+            />
           </Box>
 
           <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-start' }}>

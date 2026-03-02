@@ -5,6 +5,7 @@ import * as yup from 'yup'
 import SimpleForm from '@/components/shared-components'
 import ProspectTags from '@/features/ProspectTags'
 import type { Prospect } from '@/types'
+import { formatPhoneNumberAsTyped, stripPhoneNumberFormatting } from '@/utils'
 
 interface CreateOrEditProspectFormBaseProps {
   handleSubmit: SubmitHandler<Prospect>
@@ -52,6 +53,15 @@ const CreateOrEditProspectForm = ({
           rules: { required: 'Name is required' },
         },
         {
+          name: 'phoneNumber',
+          inputType: 'text',
+          label: 'Phone Number',
+          onChangeFormatter: formatPhoneNumberAsTyped,
+          rules: {
+            required: false,
+          },
+        },
+        {
           name: 'age',
           inputType: 'text',
           label: 'Prospect Age',
@@ -92,6 +102,13 @@ const CreateOrEditProspectForm = ({
       ]}
       schema={yup.object<Prospect>({
         name: yup.string().required('Name is Required'),
+        phoneNumber: yup
+          .string()
+          .transform((_value, originalValue) => {
+            // Strip formatting and return raw digits
+            return stripPhoneNumberFormatting(originalValue)
+          })
+          .optional(),
         age: yup
           .number()
           .transform((_value, originalValue) => {

@@ -21,6 +21,7 @@ export interface Prospect {
   // String for (empty string) form value, number as value
   age: string | number | null
   occupation: string
+  phoneNumber: string
   notes: string
   location: string
   createdAt: string
