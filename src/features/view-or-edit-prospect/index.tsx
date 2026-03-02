@@ -108,12 +108,18 @@ const ViewOrEditProspect = ({
   const handleAddToContacts = () => {
     const rawPhoneNumber = stripPhoneNumberFormatting(defaultValues.phoneNumber)
 
+    // Parse name into first and last name
+    const nameParts = defaultValues.name.trim().split(' ')
+    const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : ''
+    const firstName = nameParts.length > 1 ? nameParts.slice(0, -1).join(' ') : nameParts[0]
+
     // Create vCard format
+    // N format: LastName;FirstName;MiddleName;Prefix;Suffix
     const vCard = [
       'BEGIN:VCARD',
       'VERSION:3.0',
       `FN:${defaultValues.name}`,
-      `N:${defaultValues.name};;;`,
+      `N:${lastName};${firstName};;;`,
       rawPhoneNumber ? `TEL;TYPE=CELL:${rawPhoneNumber}` : '',
       defaultValues.notes
         ? `NOTE:${defaultValues.notes.replace(/\n/g, '\\n')}`
@@ -194,6 +200,21 @@ const ViewOrEditProspect = ({
               Prospect Details
             </Typography>
             <Box sx={{ display: 'flex', gap: 1 }}>
+              <Tooltip title='Add to contacts'>
+                <IconButton
+                  onClick={handleAddToContacts}
+                  color='primary'
+                  size='small'
+                  sx={{
+                    '&:hover': {
+                      backgroundColor: 'primary.light',
+                      color: 'primary.contrastText',
+                    },
+                  }}
+                >
+                  <ContactsIcon />
+                </IconButton>
+              </Tooltip>
               <IconButton
                 onClick={() => setIsEditMode(true)}
                 color='primary'
@@ -270,20 +291,6 @@ const ViewOrEditProspect = ({
                           }}
                         >
                           <PhoneIcon sx={{ fontSize: '0.875rem' }} />
-                        </IconButton>
-                      </Tooltip>,
-                      <Tooltip key='add-contact' title='Add to contacts'>
-                        <IconButton
-                          size='small'
-                          onClick={handleAddToContacts}
-                          sx={{
-                            padding: '2px',
-                            '&:hover': {
-                              backgroundColor: 'action.hover',
-                            },
-                          }}
-                        >
-                          <ContactsIcon sx={{ fontSize: '0.875rem' }} />
                         </IconButton>
                       </Tooltip>,
                     ]
