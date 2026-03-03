@@ -1,9 +1,7 @@
 import { DeleteForeverOutlined, Save } from '@mui/icons-material'
-import { useMemo } from 'react'
 import type { SubmitHandler } from 'react-hook-form'
 import * as yup from 'yup'
 import SimpleForm from '@/components/shared-components'
-import ProspectTags from '@/features/ProspectTags'
 import type { Prospect } from '@/types'
 import { formatPhoneNumberAsTyped, stripPhoneNumberFormatting } from '@/utils'
 
@@ -37,10 +35,6 @@ const CreateOrEditProspectForm = ({
   handleCancel,
   isLoading,
 }: CreateOrEditProspectFormProps) => {
-  const existingTagValue = useMemo(() => {
-    return prospectValues?.tags.map((tag) => tag.tag) || []
-  }, [prospectValues?.tags])
-
   return (
     <SimpleForm<Prospect>
       title={mode === 'create' ? 'Create Prospect' : 'Edit Prospect'}
@@ -80,16 +74,6 @@ const CreateOrEditProspectForm = ({
           label: 'Prospect Location',
           inputType: 'text',
           rules: { required: false },
-        },
-        {
-          label: 'Prospect Tags',
-          inputType: 'void',
-          renderAfter: () => (
-            <ProspectTags
-              existingTagValue={existingTagValue}
-              prospectId={prospectValues?.id || -1}
-            />
-          ),
         },
         {
           name: 'notes',
