@@ -1,11 +1,17 @@
-import { Close, DeleteForeverOutlined, Edit } from '@mui/icons-material'
+import { Add, Close, DeleteForeverOutlined, Edit } from '@mui/icons-material'
 import ContactsIcon from '@mui/icons-material/Contacts'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import MessageIcon from '@mui/icons-material/Message'
 import PhoneIcon from '@mui/icons-material/Phone'
+
 import {
   Box,
+  Button,
   Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Divider,
   IconButton,
   Stack,
@@ -20,11 +26,20 @@ const LocationMap = dynamic(() => import('@/components/location-map'), {
 })
 
 import DeleteConfirmationDialog from '@/components/shared-components/DeleteConfirmationDialog'
+import TextAreaField from '@/components/shared-components/TextAreaField'
 import ProspectTags from '@/features/ProspectTags'
 import CreateOrEditProspectForm from '@/features/prospect/CreateOrEditProspectForm'
 import ViewProspectDetail from '@/features/view-or-edit-prospect/ViewProspectDetail'
+
 import { useLocationDistance, useSnackbar } from '@/hooks'
-import { useGetCurrentUserQuery } from '@/redux/services'
+import {
+  useCreateProspectNoteMutation,
+  useDeleteProspectNoteMutation,
+  useGetCurrentUserQuery,
+  useListProspectNotesQuery,
+  useUpdateProspectNoteMutation,
+} from '@/redux/services'
+
 import type { Prospect } from '@/types'
 import { formatPhoneNumber, stripPhoneNumberFormatting } from '@/utils'
 
@@ -45,7 +60,56 @@ const ViewOrEditProspect = ({
 }: ViewOrEditProspectProps) => {
   const { data: currentUser } = useGetCurrentUserQuery()
   const revealSnackbar = useSnackbar()
+  const { data: prospectNotes } = useListProspectNotesQuery({
+    prospectId: defaultValues.id,
+  })
 
+  const [openAddNoteModal, setOpenAddNoteModal] = useState(false)
+  const [noteContent, setNoteContent] = useState('')
+
+  const [editingNoteId, setEditingNoteId] = useState<number | null>(null)
+  const [editNoteContent, setEditNoteContent] = useState('')
+
+  const handleOpenEditNote = (noteId: number, content: string) => {
+    setEditingNoteId(noteId)
+    setEditNoteContent(content)
+  }
+
+  const handleCloseEditNote = () => {
+    setEditingNoteId(null)
+    setEditNoteContent('')
+  }
+
+  const handleEditNote = async () => {
+    if (!editingNoteId || !editNoteContent.trim()) return
+    await triggerUpdateProspectNote({
+      noteId: editingNoteId,
+      prospectId: defaultValues.id,
+      content: editNoteContent.trim(),
+    }).unwrap()
+    handleCloseEditNote()
+  }
+
+  const [triggerCreateProspectNote] = useCreateProspectNoteMutation()
+  const [triggerDeleteProspectNote] = useDeleteProspectNoteMutation()
+  const [triggerUpdateProspectNote] = useUpdateProspectNoteMutation()
+
+  const handleDeleteNote = async (noteId: number) => {
+    await triggerDeleteProspectNote({
+      noteId,
+      prospectId: defaultValues.id,
+    }).unwrap()
+  }
+
+  const handleAddNote = async () => {
+    if (!noteContent.trim()) return
+    await triggerCreateProspectNote({
+      content: noteContent.trim(),
+      prospectId: defaultValues.id,
+    }).unwrap()
+    setNoteContent('')
+    setOpenAddNoteModal(false)
+  }
   const [isEditMode, setIsEditMode] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
@@ -111,7 +175,8 @@ const ViewOrEditProspect = ({
     // Parse name into first and last name
     const nameParts = defaultValues.name.trim().split(' ')
     const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : ''
-    const firstName = nameParts.length > 1 ? nameParts.slice(0, -1).join(' ') : nameParts[0]
+    const firstName =
+      nameParts.length > 1 ? nameParts.slice(0, -1).join(' ') : nameParts[0]
 
     // Create vCard format
     // N format: LastName;FirstName;MiddleName;Prefix;Suffix
@@ -150,7 +215,10 @@ const ViewOrEditProspect = ({
       link.click()
       document.body.removeChild(link)
       window.URL.revokeObjectURL(url)
-      revealSnackbar('Contact card downloaded - double-click to add to Contacts', { variant: 'success' })
+      revealSnackbar(
+        'Contact card downloaded - double-click to add to Contacts',
+        { variant: 'success' },
+      )
     }
   }
 
@@ -343,28 +411,102 @@ const ViewOrEditProspect = ({
 
           {/* Notes Field */}
           <Box sx={{ mb: 3 }}>
-            <Typography
-              variant='caption'
-              color='text.secondary'
-              sx={{
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                letterSpacing: 0.5,
-              }}
+            <Box
+              display='flex'
+              justifyContent='space-between'
+              alignItems='center'
             >
-              Notes
-            </Typography>
-            <Typography
-              variant='body1'
-              sx={{
-                mt: 0.5,
-                whiteSpace: 'pre-wrap',
-                color: prospectValues.notes ? 'text.primary' : 'text.secondary',
-                fontStyle: prospectValues.notes ? 'normal' : 'italic',
-              }}
-            >
-              {prospectValues.notes || 'No notes added'}
-            </Typography>
+              <Typography
+                variant='caption'
+                color='text.secondary'
+                sx={{
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: 0.5,
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                }}
+              >
+                Notes
+              </Typography>
+              <Tooltip title='Add Note'>
+                <IconButton onClick={() => setOpenAddNoteModal(true)}>
+                  <Add color='success' />
+                </IconButton>
+              </Tooltip>
+            </Box>
+            {prospectNotes && prospectNotes.length > 0 ? (
+              <Stack
+                spacing={1}
+                sx={{ mt: 0.5, maxHeight: 140, overflowY: 'auto' }}
+              >
+                {prospectNotes.map((note) => (
+                  <Box
+                    key={note.id}
+                    sx={{
+                      p: 1.5,
+                      borderRadius: 1,
+                      backgroundColor: 'action.hover',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'flex-start',
+                    }}
+                  >
+                    <Box>
+                      <Typography
+                        variant='body2'
+                        sx={{ whiteSpace: 'pre-wrap' }}
+                      >
+                        {note.content}
+                      </Typography>
+                      {note.createdAt && (
+                        <Typography
+                          variant='caption'
+                          color='text.secondary'
+                          sx={{ mt: 0.5, display: 'block' }}
+                        >
+                          {new Date(note.createdAt).toLocaleString()}
+                        </Typography>
+                      )}
+                    </Box>
+                    {note.id && (
+                      <Box sx={{ display: 'flex', flexShrink: 0, ml: 1 }}>
+                        <IconButton
+                          size='small'
+                          onClick={() => {
+                            if (note.id) {
+                              handleOpenEditNote(note.id, note.content)
+                            }
+                          }}
+                        >
+                          <Edit fontSize='small' />
+                        </IconButton>
+                        <IconButton
+                          size='small'
+                          onClick={() => {
+                            if (note.id) {
+                              handleDeleteNote(note.id)
+                            }
+                          }}
+                        >
+                          <DeleteForeverOutlined
+                            fontSize='small'
+                            color='error'
+                          />
+                        </IconButton>
+                      </Box>
+                    )}
+                  </Box>
+                ))}
+              </Stack>
+            ) : (
+              <Typography
+                variant='body1'
+                sx={{ mt: 0.5, color: 'text.secondary', fontStyle: 'italic' }}
+              >
+                No notes added
+              </Typography>
+            )}
           </Box>
 
           <Divider sx={{ my: 3, width: '100%' }} />
@@ -394,6 +536,74 @@ const ViewOrEditProspect = ({
             />
           </Box>
         </Box>
+
+        {/* Add Note Dialog */}
+        <Dialog
+          open={openAddNoteModal}
+          onClose={() => setOpenAddNoteModal(false)}
+          fullWidth
+          maxWidth='sm'
+        >
+          <DialogTitle>Add Note</DialogTitle>
+          <DialogContent>
+            <TextAreaField
+              label='Note'
+              value={noteContent}
+              onChange={setNoteContent}
+              onSubmit={handleAddNote}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={() => setOpenAddNoteModal(false)}
+              color='inherit'
+              variant='outlined'
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAddNote}
+              variant='contained'
+              disabled={!noteContent.trim()}
+            >
+              Save
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Edit Note Dialog */}
+        <Dialog
+          open={editingNoteId !== null}
+          onClose={handleCloseEditNote}
+          fullWidth
+          maxWidth='sm'
+        >
+          <DialogTitle>Edit Note</DialogTitle>
+          <DialogContent>
+            <TextAreaField
+              label='Note'
+              value={editNoteContent}
+              onChange={setEditNoteContent}
+              onSubmit={handleEditNote}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={handleCloseEditNote}
+              color='inherit'
+              variant='outlined'
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleEditNote}
+              variant='contained'
+              disabled={!editNoteContent.trim()}
+            >
+              Save
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         {/* Delete Confirmation Dialog */}
         <DeleteConfirmationDialog

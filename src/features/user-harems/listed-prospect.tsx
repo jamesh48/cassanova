@@ -117,7 +117,7 @@ const ListedProspect = ({
             >
               {userHaremProspect.name}
             </Typography>
-            {userHaremProspect.notes.length ? (
+            {userHaremProspect.mostRecentNote ? (
               <Tooltip
                 title={
                   <Box
@@ -134,10 +134,10 @@ const ListedProspect = ({
                         textUnderlineOffset: '.25rem',
                       }}
                     >
-                      Notes
+                      Most Recent Note
                     </Typography>
                     <Typography variant='caption'>
-                      {userHaremProspect.notes}
+                      {userHaremProspect.mostRecentNote.content}
                     </Typography>
                   </Box>
                 }

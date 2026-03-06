@@ -75,14 +75,6 @@ const CreateOrEditProspectForm = ({
           inputType: 'text',
           rules: { required: false },
         },
-        {
-          name: 'notes',
-          inputType: 'textarea',
-          label: 'Notes',
-          rows: 4,
-          maxRows: 8,
-          placeholder: 'Add any notes about this prospect...',
-        },
       ]}
       schema={yup.object<Prospect>({
         name: yup.string().required('Name is Required'),

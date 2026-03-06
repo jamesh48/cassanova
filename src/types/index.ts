@@ -18,6 +18,7 @@ export interface Prospect {
   hotLead: boolean
   haremOrder: number
   timeInCurrentHarem: string
+  mostRecentNote: ProspectNote | null
   // String for (empty string) form value, number as value
   age: string | number | null
   occupation: string
@@ -36,4 +37,11 @@ export interface Tag {
   userId: number
   name: string
   createdAt: string
+}
+
+export interface ProspectNote {
+  id?: number
+  createdAt?: string
+  updatedAt?: string
+  content: string
 }

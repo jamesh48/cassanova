@@ -91,6 +91,7 @@ const LocationMap = ({ location, userLocation }: LocationMapProps) => {
 
   return (
     <MapContainer
+      key={location}
       center={coords}
       zoom={13}
       style={{ height: 200, width: '100%', borderRadius: 8, marginTop: 8 }}

@@ -1,11 +1,11 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import type { Harem, Prospect, Tag, User } from '@/types'
+import type { Harem, Prospect, ProspectNote, Tag, User } from '@/types'
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3030/api/'
 
 export const cassanovaProtectedApi = createApi({
   reducerPath: 'protectedApi',
-  tagTypes: ['Prospects', 'Harems', 'User', 'Tags'],
+  tagTypes: ['Prospects', 'ProspectNotes', 'Harems', 'User', 'Tags'],
   baseQuery: fetchBaseQuery({
     baseUrl,
     prepareHeaders: (headers) => {
@@ -163,6 +163,45 @@ export const cassanovaProtectedApi = createApi({
       // invalidate harems so that tags deleted from prospects are refreshed
       invalidatesTags: ['Tags', 'Harems'],
     }),
+    createProspectNote: builder.mutation<
+      void,
+      ProspectNote & { prospectId: number }
+    >({
+      query: ({ prospectId, ...body }) => ({
+        url: `prospects/${prospectId}/notes`,
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['ProspectNotes'],
+    }),
+    listProspectNotes: builder.query<ProspectNote[], { prospectId: number }>({
+      query: ({ prospectId }) => ({
+        url: `/prospects/${prospectId}/notes`,
+        method: 'GET',
+      }),
+      providesTags: ['ProspectNotes'],
+    }),
+    deleteProspectNote: builder.mutation<
+      void,
+      { noteId: number; prospectId: number }
+    >({
+      query: ({ prospectId, noteId }) => ({
+        url: `/prospects/${prospectId}/notes/${noteId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['ProspectNotes'],
+    }),
+    updateProspectNote: builder.mutation<
+      ProspectNote,
+      { noteId: number; prospectId: number; content: string }
+    >({
+      query: ({ prospectId, noteId, content }) => ({
+        url: `/prospects/${prospectId}/notes/${noteId}`,
+        method: 'PATCH',
+        body: { content },
+      }),
+      invalidatesTags: ['ProspectNotes'],
+    }),
   }),
 })
 
@@ -179,6 +218,11 @@ export const {
   useMoveProspectMutation,
   useReorderProspectsMutation,
   useUpdateProspectMutation,
+  // Prospect Notes
+  useListProspectNotesQuery,
+  useCreateProspectNoteMutation,
+  useDeleteProspectNoteMutation,
+  useUpdateProspectNoteMutation,
   // Token
   useLazyValidateTokenQuery,
   // User
